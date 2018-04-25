@@ -29,14 +29,14 @@ function Search(url) {
     })
 }
 
-const usage = 'Usage: whodis [OPTION] URLs...'
-
 function main() {
   let json = flag.Add("json", "j", false, "Save data to JSON file")
-  flag.Parse()
+  flag.Parse('Usage: whodis [OPTION] URLs...')
 
   if (json['value'] === false) {
-    console.log("it's false")
+    console.log('json is false')
+  } else {
+    console.log('json is true')
   }
 }
 
