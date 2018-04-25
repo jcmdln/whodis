@@ -32,10 +32,12 @@ function Search(url) {
 const usage = 'Usage: whodis [OPTION] URLs...'
 
 function main() {
-  var json
-  flag.Add("json", "j", false, "Save data to JSON file")
-
+  let json = flag.Add("json", "j", false, "Save data to JSON file")
   flag.Parse()
+
+  if (json['value'] === false) {
+    console.log("it's false")
+  }
 }
 
 main()

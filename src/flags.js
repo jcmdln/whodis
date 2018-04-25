@@ -22,6 +22,8 @@ let Add = function(Long, Short, Value, About) {
     "value": Value,
     "about":  About
   }
+
+  return Flags[Long]
 }
 
 let Parse = function() {
