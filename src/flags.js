@@ -29,13 +29,12 @@ let Add = function(Long, Short, Value, About) {
 let Parse = function(usage) {
   let args  = process.argv.slice(2, process.argv.length)
 
-  console.log(usage)
-
   if (args.length === 0 || args.indexOf("-h") > -1) {
     Flags['help']['value'] = true
 
-    let align = 0, pad = ''
+    console.log(usage)
 
+    let align = 0, pad = ''
     for (f in Flags) { if (f.length > align) { align = f.length } }
     for (f in Flags) {
       if (f.length < align) {
@@ -50,10 +49,12 @@ let Parse = function(usage) {
 
       pad = ''
     }
+    return
   }
 
   if (args.indexOf("-v") > -1) {
     Flags['version']['value'] = true
+    return
   }
 
   if (args.indexOf("-j") > -1) {
