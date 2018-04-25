@@ -30,14 +30,15 @@ function Search(url) {
 }
 
 function main() {
+  let cmd  = flag.Meta("whodis", "v1.0.0", "[OPTION] URLs...",
+  		       "Find what software a site uses")
+  let file = flag.Add("file", "f", false, "Read domains from a file")
   let json = flag.Add("json", "j", false, "Save data to JSON file")
-  flag.Parse('Usage: whodis [OPTION] URLs...')
+  flag.Parse()
 
-  if (json['value'] === false) {
-    console.log('json is false')
-  } else {
-    console.log('json is true')
-  }
+  // if (version['value'] === true) {
+  //   console.log(cmd['name'], '-', 'v1.0.0')
+  // }
 }
 
 main()
