@@ -4,10 +4,6 @@
 //
 
 let Cmd = {
-  "name":    "",
-  "version": "",
-  "usage":   "",
-  "about":   "",
   "flags": {
     "help": {
       "short": "-h",
