@@ -1,0 +1,26 @@
+{
+  "name": "whodis",
+  "version": "1.0.0",
+  "description": "Find what software stack a website is using via Wappalyzer",
+  "license": "MIT",
+  "author": "jcmdln",
+  "homepage": "https://github.com/jcmdln/whodis#readme",
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcmdln/whodis.git"
+  },
+
+  "bugs": {
+    "url": "https://github.com/jcmdln/whodis/issues"
+  },
+
+  "main": "src/main.js",
+  "scripts": {
+    "test": "node src/main.js github.com"
+  },
+
+  "dependencies": {
+    "wappalyzer": "^5.4.15"
+  }
+}
