@@ -31,8 +31,7 @@ function Search(url) {
 }
 
 function main() {
-  let cmd  = flag.Meta("whodis", "v1.0.0", "[OPTION] URLs...",
-  		       "Find what software a site uses")
+  let cmd  = flag.Meta("[OPTION] URLs...")
   let file = flag.Add("file", "f", false, "Read domains from a file")
   let json = flag.Add("json", "j", false, "Save data to JSON file")
   let parg = flag.Parse()

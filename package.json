@@ -14,9 +14,10 @@
   },
   "main": "src/main.js",
   "scripts": {
-    "test": "node src/main.js github.com"
+    "test": "node src/main.js -v"
   },
   "dependencies": {
+    "pkginfo": "^0.4.1",
     "wappalyzer": "^5.4.15"
   }
 }

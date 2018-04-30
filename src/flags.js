@@ -1,5 +1,11 @@
 // flags.js
 
+let pkginfo  = require('pkginfo')(module, 'name', 'version', 'description'),
+    pkgname    = module.exports['name'],
+    pkgversion = module.exports['version'],
+    pkgabout   = module.exports['description']
+
+
 //
 //
 
@@ -24,11 +30,11 @@ let Cmd = {
 //
 //
 
-let Meta = function(Name, Version, Usage, About) {
-  Cmd["name"]    = Name
-  Cmd["version"] = Version
+let Meta = function(Usage) {
+  Cmd["name"]    = pkgname
+  Cmd["version"] = pkgversion
   Cmd["usage"]   = Usage
-  Cmd["about"]   = About
+  Cmd["about"]   = pkgabout
   return Cmd
 }
 
@@ -55,9 +61,8 @@ let Help = function() {
   Cmd['flags']['help']['value'] = true
 
   console.log(
-    Cmd['name']+':', Cmd['about']+'\n'
-      +'Usage:', Cmd['name'], Cmd['usage']+'\n\n'
-      +'Available options:'
+    'Usage:', pkgname, Cmd['usage']+'\n'
+      + pkgabout+'\n'
   )
 
   let align = 0, pad = ''
@@ -91,13 +96,19 @@ let Parse = function() {
   let args = process.argv.slice(2, process.argv.length)
   let parg = []
 
-  // Checking for no arguments. No point in parsing further bits if
-  // there's nothing to parse.
+  // Check for no arguments or '-h|--help', print Help() and exit.
   if (args.length === 0 ||
-      (args.indexOf(Cmd['flags']['help']['short']) > -1 ) ||
-      (args.indexOf(Cmd['flags']['help']['long'])  > -1)) {
+      args.indexOf(Cmd['flags']['help']['short']) > -1 ||
+      args.indexOf(Cmd['flags']['help']['long'])  > -1) {
     Help()
-    return
+    process.exit()
+  }
+
+  // Check for '-v|--version', print version and exit.
+  if (args.indexOf(Cmd['flags']['version']['short'] > -1 ) ||
+      args.indexOf(Cmd['flags']['version']['long']) > -1) {
+    console.log(pkgname, '- v'+pkgversion)
+    process.exit()
   }
 
   // Parse arguments
