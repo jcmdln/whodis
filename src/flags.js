@@ -121,13 +121,13 @@ let Parse = function() {
 
 	// Check for arguments that receive strings
 	if (Cmd['flags'][f]['value'] === typeof(string)) {
-	  Cmd['flags'][f]['value'] = true
+	  Cmd['flags'][f]['value'] = args[i+1]
 	  i++
 	}
 
 	// Check for arguments that receive numbers
 	if (Cmd['flags'][f]['value'] === typeof(int)) {
-	  Cmd['flags'][f]['value'] = false
+	  Cmd['flags'][f]['value'] = args[i+1]
 	  i++
 	}
 
