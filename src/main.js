@@ -37,8 +37,8 @@ function main() {
   let json = flag.Add("json", "j", false, "Save data to JSON file")
   let parg = flag.Parse()
 
-  if (parg) {
-    Search(parg)
+  for (i = 0; i < parg.length; i++) {
+    Search(parg[i])
   }
 }
 
