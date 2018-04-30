@@ -89,6 +89,7 @@ let Help = function() {
 //
 let Parse = function() {
   let args = process.argv.slice(2, process.argv.length)
+  let parg = []
 
   // Checking for no arguments. No point in parsing further bits if
   // there's nothing to parse.
@@ -99,28 +100,47 @@ let Parse = function() {
     return
   }
 
-
-
-  // Compare arguments against flags and perform tasks like flipping
-  // boolean bits.
+  // Parse arguments
   for (i = 0; i < args.length; i++ ) {
     for (f in Cmd['flags']) {
       if ((args[i].indexOf(Cmd['flags'][f]['short']) > -1) ||
 	  (args[i].indexOf(Cmd['flags'][f]['long'])  > -1)) {
-	// Flip booleans
-	if (Cmd['flags'][f]['value'] === false) {
+
+	// Check for arguments that have undefined types
+	if (Cmd['flags'][f]['value'] === typeof(undefined)) {
+	  console.log("nope")
+	  process.exit()
+	}
+
+	// Check for arguments that toggle booleans
+	if (Cmd['flags'][f]['value'] === typeof(boolean)) {
 	  Cmd['flags'][f]['value'] = true
 	} else if (Cmd['flags'][f]['value'] === true) {
 	  Cmd['flags'][f]['value'] = false
+	}
+
+	// Check for arguments that receive strings
+	if (Cmd['flags'][f]['value'] === typeof(string)) {
+	  Cmd['flags'][f]['value'] = true
+	  i++
+	}
+
+	// Check for arguments that receive numbers
+	if (Cmd['flags'][f]['value'] === typeof(int)) {
+	  Cmd['flags'][f]['value'] = false
+	  i++
 	}
 
 	return
       }
     }
 
-    // Log all arguments not associated with a flag
-    console.log(Cmd['name']+":", "no such flag", args[i])
+    // Collect arguments not associated with a flag
+    parg.push(args[i])
   }
+
+  // Return array of non-flag arguments
+  return parg
 }
 
 // Here we will expose certain items for user consumption.

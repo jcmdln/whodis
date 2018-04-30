@@ -8,11 +8,12 @@ let data    = [],
     domains = []
 
 function Search(url) {
-  const w = new wappalyzer(url)
-
+  // If no protocol is provided, assume https
   if (url.indexOf('http') === -1) {
     url = 'https://' + url
   }
+
+  const w = new wappalyzer(url)
 
   w.analyze()
     .then(json => {
@@ -34,11 +35,11 @@ function main() {
   		       "Find what software a site uses")
   let file = flag.Add("file", "f", false, "Read domains from a file")
   let json = flag.Add("json", "j", false, "Save data to JSON file")
-  flag.Parse()
+  let parg = flag.Parse()
 
-  // if (version['value'] === true) {
-  //   console.log(cmd['name'], '-', 'v1.0.0')
-  // }
+  if (parg) {
+    Search(parg)
+  }
 }
 
 main()
