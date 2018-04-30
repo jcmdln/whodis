@@ -32,12 +32,13 @@ function Search(url) {
 
 function main() {
   let cmd  = flag.Meta("[OPTION] URLs...")
-  let file = flag.Add("file", "f", false, "Read domains from a file")
-  let json = flag.Add("json", "j", false, "Save data to JSON file")
+  let json = flag.Add("json", "j", '', "Save data to JSON file")
   let parg = flag.Parse()
 
-  for (i = 0; i < parg.length; i++) {
-    Search(parg[i])
+  if (parg) {
+    for (i = 0; i <= parg.length; i++) {
+      Search(parg[i])
+    }
   }
 }
 

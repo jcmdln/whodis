@@ -90,8 +90,10 @@ let Help = function() {
   }
 }
 
+
 //
 //
+
 let Parse = function() {
   let args = process.argv.slice(2, process.argv.length)
   let parg = []
@@ -105,52 +107,51 @@ let Parse = function() {
   }
 
   // Check for '-v|--version', print version and exit.
-  if (args.indexOf(Cmd['flags']['version']['short'] > -1 ) ||
+  if (args.indexOf(Cmd['flags']['version']['short']) > -1  ||
       args.indexOf(Cmd['flags']['version']['long']) > -1) {
     console.log(pkgname, '- v'+pkgversion)
     process.exit()
   }
 
   // Parse arguments
-  for (i = 0; i < args.length; i++ ) {
+  for (i = 0; i < args.length; i++) {
     for (f in Cmd['flags']) {
       if ((args[i].indexOf(Cmd['flags'][f]['short']) > -1) ||
 	  (args[i].indexOf(Cmd['flags'][f]['long'])  > -1)) {
 
 	// Check for arguments that have undefined types
-	if (Cmd['flags'][f]['value'] === typeof(undefined)) {
+	if (typeof Cmd['flags'][f]['value'] === typeof undefined) {
 	  console.log("nope")
 	  process.exit()
 	}
 
 	// Check for arguments that toggle booleans
-	if (Cmd['flags'][f]['value'] === typeof(boolean)) {
-	  Cmd['flags'][f]['value'] = true
-	} else if (Cmd['flags'][f]['value'] === true) {
-	  Cmd['flags'][f]['value'] = false
+	if (typeof Cmd['flags'][f]['value'] === typeof false) {
+	  if (Cmd['flags'][f]['value'] === true) {
+	    Cmd['flags'][f]['value'] = false
+	  } else {
+	    Cmd['flags'][f]['value'] = true
+	  }
 	}
 
 	// Check for arguments that receive strings
-	if (Cmd['flags'][f]['value'] === typeof(string)) {
+	if (typeof Cmd['flags'][f]['value'] === typeof '') {
 	  Cmd['flags'][f]['value'] = args[i+1]
-	  i++
+	  i += 2
 	}
 
 	// Check for arguments that receive numbers
-	if (Cmd['flags'][f]['value'] === typeof(int)) {
+	if (typeof Cmd['flags'][f]['value'] === typeof 0) {
 	  Cmd['flags'][f]['value'] = args[i+1]
-	  i++
+	  i += 2
 	}
-
-	return
       }
     }
 
-    // Collect arguments not associated with a flag
+    // Add non-flag arguments to parg
     parg.push(args[i])
   }
 
-  // Return array of non-flag arguments
   return parg
 }
 
