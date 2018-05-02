@@ -14,7 +14,7 @@
   },
   "main": "src/main.js",
   "scripts": {
-    "test": "node src/main.js -v"
+    "test": "node src/main.js techcrunch.com"
   },
   "dependencies": {
     "pkginfo": "^0.4.1",
