@@ -1,14 +1,20 @@
 // flags.js
 
-let pkginfo  = require('pkginfo')(module, 'name', 'version', 'description')
+let pkginfo    = require('pkginfo')(module, 'version')
     pkgversion = module.exports['version']
 
 
-// Define our JSON object which will hold metadata about our commands
-// and their flags. 'help' and 'version' are provided by default
+// Define our JSON object which will hold metadata about our commands,
+// and a mechanism for defining the root command.
 
-let Cmd = {
-  "flags": {
+let Cmd = {}
+
+let RootCmd = function(Name, About, Usage) {
+  Cmd["name"]    = Name,
+  Cmd["version"] = pkgversion,
+  Cmd["about"]   = About,
+  Cmd["usage"]   = Usage,
+  Cmd["flags"]   = {
     "help": {
       "short": "-h",
       "long":  "--help",
@@ -21,17 +27,8 @@ let Cmd = {
       "value": false,
       "about": "Show command version",
     },
-  },
-}
+  }
 
-
-// Mechanism for defining commands
-
-let Meta = function(Name, About, Usage) {
-  Cmd["name"]    = Name
-  Cmd["version"] = pkgversion
-  Cmd["usage"]   = Usage
-  Cmd["about"]   = About
   return Cmd
 }
 
@@ -179,7 +176,7 @@ let Parse = function() {
 // flags.
 
 module.exports = {
-  Add:   Add,
-  Meta:  Meta,
-  Parse: Parse,
+  RootCmd:  RootCmd,
+  Add:      Add,
+  Parse:    Parse,
 }

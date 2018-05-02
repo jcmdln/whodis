@@ -43,11 +43,12 @@ let Search = function(url) {
 
 function main() {
   // Define our command and flags
-  let cmd  = flag.Meta("whodis", "Use Wappalyzer from the command line",
-		       "[OPTION] URLs...")
+  let cmd  = flag.RootCmd("whodis", "Use Wappalyzer from the command line",
+			  "[OPTION] URLs...")
   let json = flag.Add("json", "j", "wew.lad.json", "Save data to JSON file")
   let args = flag.Parse()
 
+  // Confirm some arguments were returned
   if (args.length > 0 ){
     // Store all retrieved JSON in this array
     let data = []
