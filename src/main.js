@@ -13,7 +13,19 @@ function Search(url) {
     url = 'https://' + url
   }
 
-  const w = new wappalyzer(url)
+  const options = {
+    debug: false,
+    delay: 100,
+    maxDepth: 3,
+    maxUrls: 10,
+    maxWait: 5000,
+    recursive: true,
+    userAgent: 'Wappalyzer',
+    htmlMaxCols: 2000,
+    htmlMaxRows: 2000,
+  };
+
+  const w = new wappalyzer(url, options)
 
   w.analyze()
     .then(json => {
@@ -22,11 +34,13 @@ function Search(url) {
 	console.log("whodis: exiting...")
 	process.exit()
       } else {
-	console.log(json)
+	process.stdout.write(JSON.stringify(json, null, 2) + '\n')
+	process.exit(0)
       }
     })
     .catch(error => {
       console.error(error)
+      process.exit(1)
     })
 }
 
