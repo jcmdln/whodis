@@ -112,7 +112,7 @@ let Help = function() {
 
 let Parse = function() {
   let args = process.argv.slice(2, process.argv.length)
-  let parg = []
+  let parsed_args = []
 
   // Check for no arguments or '-h|--help', print Help() and exit.
   if (args.length === 0 ||
@@ -129,17 +129,13 @@ let Parse = function() {
     process.exit()
   }
 
-  // Parse arguments
+  // Iterate over all arguments
   for (i = 0; i < args.length; i++) {
+    // Compare against each flag
     for (f in Cmd['flags']) {
+      // Confirm that a flag matches
       if ((args[i].indexOf(Cmd['flags'][f]['short']) > -1) ||
 	  (args[i].indexOf(Cmd['flags'][f]['long'])  > -1)) {
-
-	// Check for arguments that have undefined types
-	if (typeof Cmd['flags'][f]['value'] === typeof undefined) {
-	  console.log("nope")
-	  process.exit()
-	}
 
 	// Check for arguments that toggle booleans
 	if (typeof Cmd['flags'][f]['value'] === typeof false) {
@@ -152,23 +148,42 @@ let Parse = function() {
 
 	// Check for arguments that receive strings
 	if (typeof Cmd['flags'][f]['value'] === typeof '') {
-	  Cmd['flags'][f]['value'] = args[i+1]
-	  i += 2
+	  if (typeof args[i+1] === typeof '') {
+	    Cmd['flags'][f]['value'] =  args[i+1]
+	    i += 2
+	  } else {
+	    console.error(
+	      'markan: type of', args[i+1],
+	      'does not match the original value!\n'
+		+ 'Exiting...'
+	    )
+	    process.exit(1)
+	  }
 	}
 
 	// Check for arguments that receive numbers
 	if (typeof Cmd['flags'][f]['value'] === typeof 0) {
-	  Cmd['flags'][f]['value'] = args[i+1]
-	  i += 2
+	  // Confirm the passed value is of the same type
+	  if (typeof args[i+1] === typeof 0){
+	    Cmd['flags'][f]['value'] = args[i+1]
+	    i += 2
+	  } else {
+	    console.error(
+	      'markan: type of', args[i+1],
+	      'does not match the original value!\n'
+		+ 'Exiting...'
+	    )
+	    process.exit(1)
+	  }
 	}
       }
     }
 
     // Add non-flag arguments to parg
-    parg.push(args[i])
+    parsed_args.push(args[i])
   }
 
-  return parg
+  return parsed_args
 }
 
 
