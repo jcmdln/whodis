@@ -2,8 +2,9 @@
 
 // Imports
 const fs         = require('fs'),
-      wappalyzer = require('wappalyzer'),
-      flag       = require('./flags.js')
+      flag       = require('./flags.js'),
+      wappalyzer = require('wappalyzer')
+
 
 // Flags
 let cmd  = flag.RootCmd("whodis", "Use Wappalyzer from the command line",
@@ -26,7 +27,7 @@ function Search(url) {
     delay:       0,
     maxDepth:    2,
     maxUrls:     10,
-    maxWait:     1000,
+    maxWait:     3000,
     recursive:   true,
     userAgent:   'whodis',
     htmlMaxCols: 2000,
@@ -47,11 +48,15 @@ function main() {
     // Parse all promises
     Promise.all(promises)
       .then(results => {
+	// if json.value is blank
 	if (json.value === "") {
+	  // Log results to stdout
 	  process.stdout.write(JSON.stringify(results, null, 2) + '\n')
 	} else {
-	  fs.writeFileSync(json.value, JSON.stringify(results, null, 2) + '\n')
+	  // Write to JSON
+	  fs.writeFileSync(json.value, JSON.stringify(results, null, 2) + '\n', 'utf8')
 	}
+
 	process.exit(0)
       })
       .catch(error => {
