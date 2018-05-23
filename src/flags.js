@@ -6,7 +6,6 @@ let pkginfo    = require('pkginfo')(module, 'version')
 
 // Define our JSON object which will hold metadata about our commands,
 // and a mechanism for defining the root command.
-
 let Cmd = {}
 
 let RootCmd = function(Name, About, Usage) {
@@ -35,7 +34,6 @@ let RootCmd = function(Name, About, Usage) {
 
 // Add will add a flag to our Flags JSON object. The key is also the
 // long flag, and flags do not require the user to manually add '-'.
-
 let Add = function(Long, Short, Value, About) {
   Cmd['flags'][Long] = {
     "short": '-'+Short,
@@ -43,13 +41,13 @@ let Add = function(Long, Short, Value, About) {
     "value": Value,
     "about": About,
   }
+
   return Cmd['flags'][Long]
 }
 
 
 // This function parses the length of all flags to provide
 // width-respecting help output.
-
 let Help = function() {
   // Flip 'help's boolean, though this isn't really important as when
   // this is triggered it will exit.
@@ -109,7 +107,6 @@ let Help = function() {
 // This is our argument parser which reads all arguments from the index
 // of 2 and later, then updates the values and returns non-flag arguments
 // for handling in personal logic.
-
 let Parse = function() {
   let args = process.argv.slice(2, process.argv.length)
   let parsed_args = []
@@ -177,8 +174,8 @@ let Parse = function() {
 	  }
 	}
       }
+      // No match for flag
     }
-
     // Add non-flag arguments to parg
     parsed_args.push(args[i])
   }
@@ -189,7 +186,6 @@ let Parse = function() {
 
 // Expose only the needed functions in order to create commands and
 // flags.
-
 module.exports = {
   RootCmd:  RootCmd,
   Add:      Add,

@@ -1,48 +1,62 @@
 // main.js
 
+// Imports
 const fs         = require('fs'),
       wappalyzer = require('wappalyzer'),
       flag       = require('./flags.js')
 
-const options = {
-  debug:       false,
-  delay:       0,
-  maxDepth:    2,
-  maxUrls:     6,
-  maxWait:     1000,
-  recursive:   true,
-  userAgent:   'whodis',
-  htmlMaxCols: 2000,
-  htmlMaxRows: 2000,
-}
+// Flags
+let cmd  = flag.RootCmd("whodis", "Use Wappalyzer from the command line",
+			"[OPTION] URLs...")
+let json = flag.Add("json", "j", "", "Save data to JSON file")
+let args = flag.Parse()
 
-let Search = function(url) {
-  // If no protocol is provided, assume https
+// Create a promises array to store all our URLs to crawl
+let promises = []
+
+// Format all provided URLs and add them to the promises array
+function Search(url) {
   if (url.indexOf('http') === -1) {
     url = 'https://' + url
   }
-  console.log("whodis: looking for software used by '"+url+"'...")
 
-  const w = new wappalyzer(url, options);
-  w.analyze()
-    .then(json => {
-      console.log(JSON.stringify(json, null, 2))
-    })
-    .catch(error => {
-      process.stderr.write(error + '\n')
-      process.exit(1)
-    })
+  // Wappalyzer Options
+  const options = {
+    debug:       false,
+    delay:       0,
+    maxDepth:    2,
+    maxUrls:     10,
+    maxWait:     1000,
+    recursive:   true,
+    userAgent:   'whodis',
+    htmlMaxCols: 2000,
+    htmlMaxRows: 2000,
+  }
+
+  promises.push(new wappalyzer(url, options).analyze())
+  console.log("whodis: looking for software used by '"+url+"'...")
 }
 
+// Execution
 function main() {
-  let cmd  = flag.RootCmd("whodis", "Use Wappalyzer from the command line",
-			  "[OPTION] URLs...")
-  let json = flag.Add("json", "j", "wew.lad.json", "Save data to JSON file")
-  let args = flag.Parse()
-
   if (args.length > 0) {
     for (i = 0; i < args.length; i++) {
       Search(args[i])
     }
+
+    // Parse all promises
+    Promise.all(promises)
+      .then(results => {
+	if (json.value === "") {
+	  process.stdout.write(JSON.stringify(results, null, 2) + '\n')
+	} else {
+	  fs.writeFileSync(json.value, JSON.stringify(results, null, 2) + '\n')
+	}
+	process.exit(0)
+      })
+      .catch(error => {
+	process.stderr.write(error + '\n')
+	process.exit(1)
+      })
   }
 }; main()
