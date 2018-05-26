@@ -5,7 +5,6 @@ const fs         = require('fs'),
       flag       = require('./flags.js'),
       wappalyzer = require('wappalyzer')
 
-
 // Flags
 let cmd  = flag.RootCmd("whodis", "Use Wappalyzer from the command line",
 			"[OPTION] URLs...")

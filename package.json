@@ -17,6 +17,7 @@
     "test": "node src/main.js techcrunch.com"
   },
   "dependencies": {
+    "csv-stringify": "^3.0.0",
     "pkginfo": "^0.4.1",
     "wappalyzer": "^5.4.15"
   }
