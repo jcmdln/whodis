@@ -2,7 +2,7 @@
 
 // Imports
 const fs         = require('fs'),
-      flag       = require('./flags.js'),
+      flag       = require('flags'),
       wappalyzer = require('wappalyzer')
 
 // Flags

@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "csv-stringify": "^3.0.0",
+    "flags": "git+https://github.com/jcmdln/flags.js.git",
     "pkginfo": "^0.4.1",
     "wappalyzer": "^5.4.15"
   }
