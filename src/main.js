@@ -6,8 +6,8 @@ const fs         = require('fs'),
       wappalyzer = require('wappalyzer')
 
 // Flags
-let cmd  = flag.RootCmd("whodis", "Use Wappalyzer from the command line",
-			"[OPTION] URLs...")
+let cmd  = flag.Cmd("whodis", "Use Wappalyzer from the command line",
+		    "[OPTION] URLs...")
 let json = flag.Add("json", "j", "", "Save data to JSON file")
 let args = flag.Parse()
 
@@ -39,7 +39,7 @@ function Search(url) {
 
 // Execution
 function main() {
-  if (args.length > 0) {
+  if ((args.length > 0) && (args.indexOf(".") > -1)) {
     for (i = 0; i < args.length; i++) {
       Search(args[i])
     }
@@ -62,5 +62,8 @@ function main() {
 	process.stderr.write(error + '\n')
 	process.exit(1)
       })
+  } else {
+    console.log("whodis: No URLs passed! Exiting...")
+    process.exit(0)
   }
 }; main()
