@@ -39,9 +39,13 @@ function Search(url) {
 
 // Execution
 function main() {
-  if ((args.length > 0) && (args.indexOf(".") > -1)) {
+  if (args.length > 0) {
     for (i = 0; i < args.length; i++) {
-      Search(args[i])
+      if (args[i].indexOf(".") > -1) {
+	Search(args[i])
+      } else {
+	console.log("whodis:", args[i], "is invalid")
+      }
     }
 
     // Parse all promises
