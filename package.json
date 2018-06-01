@@ -14,7 +14,7 @@
   },
   "main": "whodis.js",
   "scripts": {
-    "test": "node src/main.js techcrunch.com"
+    "test": "node whodis.js -j 'whodis-export.json' github.com gitlab.com bitbucket.com techcrunch.com"
   },
   "dependencies": {
     "flags": "git+https://github.com/jcmdln/flags.js.git",
