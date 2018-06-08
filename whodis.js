@@ -89,7 +89,7 @@ function main() {
 
 	// If not saving to a JSON or CSV file, then output to console.
 	if ((j.value === "") && (c.value === "")) {
-	  process.stdout.write(JSON.stringify(data, null, 2) + '\n')
+	  process.stdout.write(JSON.stringify(results, null, 2) + '\n')
 	} else {
 	  // Save as CSV
 	  if (c.value != "") {
