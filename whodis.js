@@ -8,7 +8,7 @@ const csv        = require('csv'),
 
 // Exposed arrays for maintaining state.
 let data  = [],
-    cols  = {},
+    cols  = {"url": "url"},
     queue = []
 
 // Format all provided URLs and add them to the promises array
@@ -74,35 +74,49 @@ function main() {
 	  let tgt = {}
 
 	  // Add the first URL to the tgt object.
-	  tgt["url"] = results[i]["urls"][0]
+	  tgt["url"]  = results[i]["urls"][0]
 
 	  // Loop over all applications of the url.
 	  for (a = 0; a < results[i]["applications"].length; a++) {
+	    let value = ""
+
 	    // Add all applications to the tgt object.
-	    tgt[results[i]["applications"][a]["name"]] = "y"
+	    if (results[i]["applications"][a]["version"] != "") {
+	      value = results[i]["applications"][a]["version"]
+	    } else {
+	      value = "yes"
+	    }
+
+	    tgt[results[i]["applications"][a]["name"]]  = value
 	    cols[results[i]["applications"][a]["name"]] = results[i]["applications"][a]["name"]
 	  }
 
 	  // Push the tgt object in to the data array.
 	  data.push(tgt)
 	}
-
+      })
+      .then(function() {
 	// If not saving to a JSON or CSV file, then output to console.
 	if ((j.value === "") && (c.value === "")) {
-	  process.stdout.write(JSON.stringify(results, null, 2) + '\n')
+	  process.stdout.write(JSON.stringify(data, null, 2) + '\n')
 	} else {
 	  // Save as CSV
 	  if (c.value != "") {
-	    fs.writeFileSync(c.value, csv.stringify(data, { header: true, columns: cols }), 'utf8')
+	    console.log("whodis: writing to", c.value)
+	    csv.stringify(data, {header: true, columns: cols}, function(err, result) {
+                fs.writeFileSync(c.value, result, 'utf8');
+            });
 	  }
 
 	  // Save as JSON
 	  if (j.value != "") {
+	    console.log("whodis: writing to", j.value)
 	    fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
 	  }
 	}
-
-	process.exit(0)
+      })
+      .then(function() {
+      	//process.exit(0)
       })
       .catch(error => {
 	process.stderr.write('whodis:', error + '\n')
