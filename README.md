@@ -1,64 +1,30 @@
 # whodis
-Find what software a site uses
+WhoDis uses the existing Wappalyzer nodejs package to detect site software from the command line.
 
 ```
-$ node src/main.js
+[jcmdln@vps whodis]$ node whodis.js 
 Usage: whodis [OPTION] URLs...
-Find what software stack a website is using via Wappalyzer
+Discover software used by websites
 
-    -h, --help         Show this output
-    -v, --version      Show command version
-
-$ node src/main.js techcrunch.com
-{ urls: [ 'https://techcrunch.com/' ],
-  applications:
-   [ { name: 'Lo-dash',
-       confidence: '100',
-       version: '4.17.10',
-       icon: 'Lo-dash.png',
-       website: 'http://www.lodash.com',
-       categories: [Array] },
-     { name: 'New Relic',
-       confidence: '100',
-       version: '',
-       icon: 'New Relic.png',
-       website: 'https://newrelic.com',
-       categories: [Array] },
-     { name: 'Nginx',
-       confidence: '100',
-       version: '',
-       icon: 'Nginx.svg',
-       website: 'http://nginx.org/en',
-       categories: [Array] },
-     { name: 'SiteCatalyst',
-       confidence: '100',
-       version: '',
-       icon: 'SiteCatalyst.png',
-       website: 'http://www.adobe.com/solutions/digital-marketing.html',
-       categories: [Array] },
-     { name: 'Typekit',
-       confidence: '100',
-       version: '1.19.2',
-       icon: 'Typekit.png',
-       website: 'http://typekit.com',
-       categories: [Array] },
-     { name: 'Underscore.js',
-       confidence: '100',
-       version: '4.17.10',
-       icon: 'Underscore.js.png',
-       website: 'http://underscorejs.org',
-       categories: [Array] },
-     { name: 'WordPress',
-       confidence: '100',
-       version: ' 4.9.5',
-       icon: 'WordPress.svg',
-       website: 'http://wordpress.org',
-       categories: [Array] },
-     { name: 'PHP',
-       confidence: '0',
-       version: '',
-       icon: 'PHP.svg',
-       website: 'http://php.net',
-       categories: [Array] } ],
-  meta: { language: 'en-US' } }
+    -h, --help        Show this output
+    -v, --version     Show command version
+    -c, --csv         Save data to CSV file
+    -e, --elastic     Upload data to an Elasticsearch instance
+    -j, --json        Save data to JSON file
+    -r, --read        Read domains from txt file
+[jcmdln@vps whodis]$ node whodis.js techcrunch.com
+whodis: queued https://techcrunch.com
+[
+  {
+    "url": "https://techcrunch.com/",
+    "New Relic": "yes",
+    "Nginx": "yes",
+    "Typekit": "1.19.2",
+    "WordPress": " 4.9.6",
+    "PHP": "yes",
+    "MySQL": "yes",
+    "Twitter Emoji (Twemoji)": "yes",
+    "Gravatar": "yes"
+  }
+]
 ```
