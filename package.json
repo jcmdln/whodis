@@ -14,7 +14,7 @@
   },
   "main": "whodis.js",
   "scripts": {
-    "test": "node whodis.js -j 'whodis-export.json' github.com gitlab.com bitbucket.com techcrunch.com"
+    "test": "node whodis.js -c 'report.csv' -j 'report.json' github.com gitlab.com bitbucket.com techcrunch.com"
   },
   "dependencies": {
     "csv": "^3.1.0",
