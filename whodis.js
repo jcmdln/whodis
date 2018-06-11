@@ -17,9 +17,9 @@ function Search(url) {
 
   const options = {
     debug:       false,
-    delay:       500,
+    delay:       1000,
     maxDepth:    3,
-    maxUrls:     10,
+    maxUrls:     9,
     maxWait:     5000,
     recursive:   true,
     userAgent:   'WhoDis'
