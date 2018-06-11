@@ -9,9 +9,7 @@ Discover software used by websites
     -h, --help        Show this output
     -v, --version     Show command version
     -c, --csv         Save data to CSV file
-    -e, --elastic     Upload data to an Elasticsearch instance
     -j, --json        Save data to JSON file
-    -r, --read        Read domains from txt file
 [jcmdln@vps whodis]$ node whodis.js techcrunch.com
 whodis: queued https://techcrunch.com
 [
