@@ -1,6 +1,6 @@
 {
   "name": "whodis",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "Find what software stack a website is using via Wappalyzer",
   "license": "MIT",
   "author": "jcmdln",
@@ -14,7 +14,7 @@
   },
   "main": "whodis.js",
   "scripts": {
-    "test": "node whodis.js -c 'report.csv' -j 'report.json' github.com gitlab.com bitbucket.com techcrunch.com"
+    "test": "node whodis.js -c 'report.csv' -j 'report.json' github.com gitlab.com bitbucket.com techcrunch.com facebook.com"
   },
   "dependencies": {
     "flags": "git+https://github.com/jcmdln/flags.js.git",
