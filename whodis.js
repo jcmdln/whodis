@@ -1,13 +1,14 @@
 // main.js
 
-const csv        = require('csv'),
-      fs         = require('fs'),
+const fs         = require('fs'),
       flag       = require('flags'),
+      json2csv   = require('json2csv').parse,
       wappalyzer = require('wappalyzer')
 
-let data  = [],
-    cols  = {"url": "url"},
-    queue = []
+let data   = [],
+    fields = ['url'],
+    cols   = {fields},
+    queue  = []
 
 function Search(url) {
   if (url.indexOf('http') === -1) {
@@ -21,9 +22,7 @@ function Search(url) {
     maxUrls:     10,
     maxWait:     5000,
     recursive:   true,
-    userAgent:   'WhoDis',
-    htmlMaxCols: 2000,
-    htmlMaxRows: 2000,
+    userAgent:   'WhoDis'
   }
 
   queue.push(new wappalyzer(url, options).analyze())
@@ -62,25 +61,18 @@ function main() {
 	    }
 
 	    tgt[results[i]["applications"][a]["name"]]  = value
-	    cols[results[i]["applications"][a]["name"]] = results[i]["applications"][a]["name"]
+	    fields.push(results[i]["applications"][a]["name"])
 	  }
 
 	  data.push(tgt)
 	}
-      })
-      .then(function() {
+
 	if ((j.value === "") && (c.value === "")) {
 	  process.stdout.write(JSON.stringify(data, null, 2) + '\n')
 	} else {
 	  if (c.value != "") {
-	    csv.stringify(data, {header: true, columns: cols}, function(err, result) {
-	      if (err) {
-		console.log("whodis:", err)
-	      } else {
-		console.log("whodis: writing to", c.value)
-		fs.writeFileSync(c.value, result, 'utf8')
-	      }
-            })
+	    console.log("whodis: writing to", c.value)
+	    fs.writeFileSync(c.value, json2csv(data, cols) + '\n', 'utf8')
 	  }
 
 	  if (j.value != "") {
@@ -88,6 +80,8 @@ function main() {
 	    fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
 	  }
 	}
+
+	process.exit(0)
       })
       .catch(error => {
 	process.stderr.write('whodis:', error + '\n')
