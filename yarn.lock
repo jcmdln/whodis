@@ -619,6 +619,10 @@ esutils@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
 
+eventemitter3@^2.0.2:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-2.0.3.tgz#b5e1079b59fb5e1ba2771c0a993be060a58c99ba"
+
 eventsource@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/eventsource/-/eventsource-0.1.6.tgz#0acede849ed7dd1ccc32c811bb11b944d4f29232"
@@ -675,9 +679,9 @@ find-up@^2.1.0:
   dependencies:
     locate-path "^2.0.0"
 
-"flags@git+https://github.com/jcmdln/flags.js.git":
+"flags@https://github.com/jcmdln/flags.js":
   version "1.0.0"
-  resolved "git+https://github.com/jcmdln/flags.js.git#26e4edea3a9c0c5a41e1dfa277fab2f75b0395f3"
+  resolved "https://github.com/jcmdln/flags.js#0f0df688ae81e78d18f95ff871d0a74eab7ce8cc"
   dependencies:
     pkginfo "^0.4.1"
 
@@ -1439,6 +1443,10 @@ ms@^2.0.0:
 mute-stream@~0.0.4:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
+
+native-promise-only@^0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/native-promise-only/-/native-promise-only-0.8.1.tgz#20a318c30cb45f71fe7adfbf7b21c99c1472ef11"
 
 node-fetch-npm@^2.0.2:
   version "2.0.2"
@@ -2464,6 +2472,13 @@ term-size@^1.2.0:
 text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
+
+threads@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/threads/-/threads-0.11.0.tgz#070897e1e2a5630816a781132406daff78c3e024"
+  dependencies:
+    eventemitter3 "^2.0.2"
+    native-promise-only "^0.8.1"
 
 through2@^2.0.0:
   version "2.0.3"
