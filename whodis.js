@@ -89,6 +89,8 @@ function Wappalyzer(queue) {
 // necessary.
 
 function main() {
+  console.log("Hello?")
+
   // If debugging, then print the 'cmd' JSON object.
   if (d.value === true) {
     process.stdout.write(JSON.stringify(cmd, null, 2) + '\n')
@@ -113,37 +115,41 @@ function main() {
     }
   }
 
-  for (i in Urls) {
-    // Shorthand for consuming the current url.
-    let url = Urls[i]
+  console.log("Hello?")
 
-    // Ensure that the current target resembles a domain.
-    if (url.indexOf(".") > -1) {
-      // If a domain does not have a defined protocol, pre-append
-      // 'https://' to it.
-      if (url.indexOf('http') === -1) {
-	url = 'https://' + url
-      }
+  if (Urls.length > 0) {
+    for (i in Urls) {
+      // Shorthand for consuming the current url.
+      let url = Urls[i]
 
-      // Add the url to the queue
-      queue.push(new wappalyzer(
-	url, {
-	  debug:     d.value,
-	  delay:     100,
-	  maxDepth:  3,
-	  maxUrls:   12,
-	  maxWait:   5000,
-	  recursive: true,
-	  userAgent: 'WhoDis'
+      // Ensure that the current target resembles a domain.
+      if (url.indexOf(".") > -1) {
+	// If a domain does not have a defined protocol, pre-append
+	// 'https://' to it.
+	if (url.indexOf('http') === -1) {
+	  url = 'https://' + url
 	}
-      ).analyze())
-    } else {
-      // Complain
-      console.log("whodis:", url, "is not a valid domain! Exiting...")
-      process.exit(1)
-    }
-  }
 
-  //
-  Wappalyzer(queue)
+	// Add the url to the queue
+	queue.push(new wappalyzer(
+	  url, {
+	    debug:     d.value,
+	    delay:     100,
+	    maxDepth:  3,
+	    maxUrls:   12,
+	    maxWait:   5000,
+	    recursive: true,
+	    userAgent: 'WhoDis'
+	  }
+	).analyze())
+      } else {
+	// Complain
+	console.log("whodis:", url, "is not a valid domain! Exiting...")
+	process.exit(1)
+      }
+    }
+
+    //
+    Wappalyzer(queue)
+  }
 }; main()
