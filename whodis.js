@@ -89,8 +89,6 @@ function Wappalyzer(queue) {
 // necessary.
 
 function main() {
-  console.log("Hello?")
-
   // If debugging, then print the 'cmd' JSON object.
   if (d.value === true) {
     process.stdout.write(JSON.stringify(cmd, null, 2) + '\n')
@@ -114,8 +112,6 @@ function main() {
       process.exit(0)
     }
   }
-
-  console.log("Hello?")
 
   if (Urls.length > 0) {
     for (i in Urls) {
