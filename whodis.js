@@ -130,9 +130,9 @@ function main() {
 	queue.push(new wappalyzer(
 	  url, {
 	    debug:     d.value,
-	    delay:     100,
+	    delay:     500,
 	    maxDepth:  3,
-	    maxUrls:   12,
+	    maxUrls:   10,
 	    maxWait:   5000,
 	    recursive: true,
 	    userAgent: 'WhoDis'
