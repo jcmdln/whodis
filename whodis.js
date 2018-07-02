@@ -1,7 +1,5 @@
 // main.js
 
-// Define our imports and assign them to constants.
-
 const fs         = require('fs'),
       flag       = require('flags'),
       json2csv   = require('json2csv').parse,
@@ -9,57 +7,81 @@ const fs         = require('fs'),
       threads    = require('threads'),
       wappalyzer = require('wappalyzer')
 
-
-// Define our command which will store our flags as a JSON object. This
-// will allow easily debugging command line flags and values when
-// comparing against logic, as well as easily accessing the value of a
-// flag which is returned to the variable. Since the variables must be
-// mutable, they cannot be constants.
-
 let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] URLs..."),
     d    = flag.Add("--debug", "-d", false, "Enable debugging"),
     f    = flag.Add("--file",  "-f", "",    "Read domains from txt file"),
     c    = flag.Add("--csv",   "-c", "",    "Save data to CSV file"),
     j    = flag.Add("--json",  "-j", "",    "Save data to JSON file"),
-    r    = flag.Add("--raw",   "-r", false, "Show raw information"),
     args = flag.Parse()
 
+let data = [], fields = ['url'],
+    urls = [], queue  = []
 
-// Define our global storage mechanisms as variables. We'll need to
-// track the data before it's written to a file, the fields of the CSV
-// if we are instructed to write one, and the queue for storing promises
-// that will be passed to Wappalyzer().
+let options = {
+  debug:     d.value,
+  delay:     500,
+  maxDepth:  3,
+  maxUrls:   10,
+  maxWait:   5000,
+  recursive: true,
+  userAgent: 'WhoDis '+cmd['version']
+}
 
-let data   = [],
-    fields = ['url'],
-    queue  = []
+if (d.value === true) {
+  process.stdout.write(JSON.stringify(cmd, null, 2) + '\n')
+}
 
+if (f.value != "") {
+  console.log("whodis: main: Reading domains from", f.value + "...")
+  urls = fs.readFileSync(f.value).toString().split("\n")
+} else {
+  if (args.length > 0) {
+    console.log("whodis: main: Reading domains from arguments...")
+    urls = args
+  } else {
+    console.log("whodis: main: No URLs passed! Exiting...")
+    process.exit(1)
+  }
+}
 
-// This big block of trash is going to be cleaned up later on. I won't go
-// into too much detail because I'll be switching this to a threaded
-// model that respects the total number of CPU threads.
+if (urls.length <= 0) {
+  console.log("whodis: main: No URLs passed! Exiting...")
+  process.exit(1)
+}
 
-function Wappalyzer(queue) {
-  Promise.all(queue)
+for (u in urls) {
+  let url = urls[u]
+
+  if (url.includes(".") === false) {
+    console.log("whodis: main:", url, "is not a valid domain! Exiting...")
+    process.exit(1)
+  }
+
+  if (url.includes('http') === false) {
+    url = 'https://' + url
+  }
+
+  let w = new wappalyzer(url, options)
+
+  w.analyze()
     .then(results => {
-      for (i = 0; i < results.length; i++) {
-	let tgt = {}
-	tgt["url"]  = results[i]["urls"][0]
+      let r = {}
+      r["url"] = results["urls"][0]
 
-	for (a = 0; a < results[i]["applications"].length; a++) {
-	  let value = ""
-	  if (results[i]["applications"][a]["version"] != "") {
-	    value = results[i]["applications"][a]["version"]
-	  } else {
-	    value = "yes"
-	  }
+      for (a in results["applications"]) {
+	let value = ""
 
-	  tgt[results[i]["applications"][a]["name"]] = value
-	  fields.push(results[i]["applications"][a]["name"])
+	if (results["applications"][a]["version"] != "") {
+	  value = results["applications"][a]["version"]
+	} else {
+	  value = "yes"
 	}
 
-	data.push(tgt)
+	r[results["applications"][a]["name"]] = value
+	fields.push(results["applications"][a]["name"])
       }
+
+      data.push(r)
 
       if ((j.value === "") && (c.value === "")) {
 	process.stdout.write(JSON.stringify(data, null, 2) + '\n')
@@ -74,78 +96,9 @@ function Wappalyzer(queue) {
 	  fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
 	}
       }
-
-      process.exit(0)
     })
     .catch(error => {
       process.stderr.write('whodis:', error + '\n')
       process.exit(1)
     })
 }
-
-
-// The execution block. This really doesn't need to be a function, but I
-// would like to properly scope the variables despite it not being really
-// necessary.
-
-function main() {
-  // If debugging, then print the 'cmd' JSON object.
-  if (d.value === true) {
-    process.stdout.write(JSON.stringify(cmd, null, 2) + '\n')
-  }
-
-  // Storage mechanisms.
-  let Urls    = [],
-      Threads = []
-
-  // Check if we are to read domains from a file
-  if (f.value != "") {
-    console.log("whodis: reading domains from", f.value + "...")
-    Urls = fs.readFileSync(f.value).toString().split("\n")
-  } else {
-    // Read domains from arguments
-    if (args.length > 0) {
-      console.log("whodis: reading domains from arguments...")
-      Urls = args;
-    } else {
-      console.log("whodis: No URLs passed! Exiting...")
-      process.exit(0)
-    }
-  }
-
-  if (Urls.length > 0) {
-    for (i in Urls) {
-      // Shorthand for consuming the current url.
-      let url = Urls[i]
-
-      // Ensure that the current target resembles a domain.
-      if (url.indexOf(".") > -1) {
-	// If a domain does not have a defined protocol, pre-append
-	// 'https://' to it.
-	if (url.indexOf('http') === -1) {
-	  url = 'https://' + url
-	}
-
-	// Add the url to the queue
-	queue.push(new wappalyzer(
-	  url, {
-	    debug:     d.value,
-	    delay:     500,
-	    maxDepth:  3,
-	    maxUrls:   10,
-	    maxWait:   5000,
-	    recursive: true,
-	    userAgent: 'WhoDis'
-	  }
-	).analyze())
-      } else {
-	// Complain
-	console.log("whodis:", url, "is not a valid domain! Exiting...")
-	process.exit(1)
-      }
-    }
-
-    //
-    Wappalyzer(queue)
-  }
-}; main()
