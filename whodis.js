@@ -15,7 +15,7 @@ let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] UR
     args = flag.Parse()
 
 let data   = [],
-    fields = ['url'],
+    fields = [],
     urls   = [],
     queue  = []
 
@@ -58,6 +58,9 @@ function Get(queue) {
 	process.stdout.write(JSON.stringify(data, null, 2) + '\n')
       } else {
 	if (c.value != "") {
+	  fields.sort()
+	  fields.unshift('url')
+
 	  console.log("whodis: writing to", c.value)
 	  fs.writeFileSync(c.value, json2csv(data, {fields}) + '\n', 'utf8')
 	}
