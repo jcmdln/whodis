@@ -4,7 +4,7 @@ const fs         = require('fs'),
       flag       = require('flags'),
       json2csv   = require('json2csv').parse,
       os         = require("os"),
-      threads    = require('threads'),
+      spawn      = require('threads').spawn,
       wappalyzer = require('wappalyzer')
 
 let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] URLs..."),
@@ -14,8 +14,10 @@ let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] UR
     j    = flag.Add("--json",  "-j", "",    "Save data to JSON file"),
     args = flag.Parse()
 
-let data = [], fields = ['url'],
-    urls = [], queue  = []
+let data   = [],
+    fields = ['url'],
+    urls   = [],
+    queue  = []
 
 let options = {
   debug:     d.value,
@@ -25,6 +27,53 @@ let options = {
   maxWait:   5000,
   recursive: true,
   userAgent: 'WhoDis '+cmd['version']
+}
+
+function Get(queue) {
+  Promise.all(queue)
+    .then(results => {
+      for (i = 0; i < results.length; i++) {
+	let r = {}
+	r["url"]  = results[i]["urls"][0]
+
+	for (a = 0; a < results[i]["applications"].length; a++) {
+	  let value = ""
+	  if (results[i]["applications"][a]["version"] != "") {
+	    value = results[i]["applications"][a]["version"]
+	  } else {
+	    value = "yes"
+	  }
+
+	  r[results[i]["applications"][a]["name"]] = value
+
+	  if (fields.includes(results[i]["applications"][a]["name"]) === false) {
+	    fields.push(results[i]["applications"][a]["name"])
+	  }
+	}
+
+	data.push(r)
+      }
+
+      if ((j.value === "") && (c.value === "")) {
+	process.stdout.write(JSON.stringify(data, null, 2) + '\n')
+      } else {
+	if (c.value != "") {
+	  console.log("whodis: writing to", c.value)
+	  fs.writeFileSync(c.value, json2csv(data, {fields}) + '\n', 'utf8')
+	}
+
+	if (j.value != "") {
+	  console.log("whodis: writing to", j.value)
+	  fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
+	}
+      }
+
+      process.exit(0)
+    })
+    .catch(error => {
+      process.stderr.write('whodis:', error + '\n')
+      process.exit(1)
+    })
 }
 
 if (d.value === true) {
@@ -49,56 +98,32 @@ if (urls.length <= 0) {
   process.exit(1)
 }
 
-for (u in urls) {
-  let url = urls[u]
+if (urls.length > 1000) {
+  for (let u = 0; u < 1000; u++) {
+    let url = urls[u]
 
-  if (url.includes(".") === false) {
-    console.log("whodis: main:", url, "is not a valid domain! Exiting...")
-    process.exit(1)
-  }
-
-  if (url.includes('http') === false) {
-    url = 'https://' + url
-  }
-
-  let w = new wappalyzer(url, options)
-
-  w.analyze()
-    .then(results => {
-      let r = {}
-      r["url"] = results["urls"][0]
-
-      for (a in results["applications"]) {
-	let value = ""
-
-	if (results["applications"][a]["version"] != "") {
-	  value = results["applications"][a]["version"]
-	} else {
-	  value = "yes"
-	}
-
-	r[results["applications"][a]["name"]] = value
-	fields.push(results["applications"][a]["name"])
+    if (url.includes(".") === true) {
+      if (url.includes('http') === false) {
+	url = 'https://' + url
       }
 
-      data.push(r)
+      queue.push(new wappalyzer(url, options).analyze())
+    }
+  }
 
-      if ((j.value === "") && (c.value === "")) {
-	process.stdout.write(JSON.stringify(data, null, 2) + '\n')
-      } else {
-	if (c.value != "") {
-	  console.log("whodis: writing to", c.value)
-	  fs.writeFileSync(c.value, json2csv(data, {fields}) + '\n', 'utf8')
-	}
+  Get(queue)
+} else {
+  for (u in urls) {
+    let url = urls[u]
 
-	if (j.value != "") {
-	  console.log("whodis: writing to", j.value)
-	  fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
-	}
+    if (url.includes(".") === true) {
+      if (url.includes('http') === false) {
+	url = 'https://' + url
       }
-    })
-    .catch(error => {
-      process.stderr.write('whodis:', error + '\n')
-      process.exit(1)
-    })
+
+      queue.push(new wappalyzer(url, options).analyze())
+    }
+  }
+
+  Get(queue)
 }
