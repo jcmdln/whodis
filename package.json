@@ -20,6 +20,6 @@
     "flags": "https://github.com/jcmdln/flags.js",
     "json2csv": "^4.1.3",
     "threads": "^0.11.0",
-    "wappalyzer": "^5.4.16"
+    "wappalyzer": "~5.4.18"
   }
 }
