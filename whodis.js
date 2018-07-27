@@ -19,35 +19,35 @@ let urls   = [],
     queue  = []
 
 let options = {
-  debug:       d.value,
-  delay:       1000,
-  maxDepth:    1,
-  maxUrls:     1,
-  maxWait:     8000,
-  recursive:   true,
-  userAgent:   'WhoDis ' + cmd['version']
-}
-
-function sleep(ms) {
-    return new Promise(r => setTimeout(r, ms));
+  debug:     d.value,
+  delay:     0,
+  maxDepth:  3,
+  maxUrls:   6,
+  maxWait:   60000,
+  recursive: true,
+  userAgent: 'WhoDis ' + cmd['version']
 }
 
 function Get(target) {
   let data   = [],
       fields = []
 
-  // console.log("whodis: Checking domain(s) for known software...")
+  console.log("whodis: Starting analysis of provided domain(s)...")
 
   Promise.all(target)
     .then(results => {
-      for (i = 0; i < results.length; i++) {
+
+      console.log("whodis: Finding technologies used by domain(s)...")
+
+      for (let i = 0; i < results.length; i++) {
 	let r = {
 	  "url": results[i]["urls"][0]
 	}
 
-	for (a = 0; a < results[i]["applications"].length; a++) {
+	for (let a = 0; a < results[i]["applications"].length; a++) {
 	  let value = ""
-	  if (results[i]["applications"][a]["confidence"] > 0) {
+
+	  if (results[i]["applications"][a]["version"] != "") {
 	    value = results[i]["applications"][a]["version"]
 	  } else {
 	    value = "yes"
@@ -64,7 +64,7 @@ function Get(target) {
       }
     })
 
-    .then(function() {
+    .finally(function() {
       if (j.value === "" && c.value === "") {
         process.stdout.write(JSON.stringify(data, null, 2) + '\n')
       } else {
@@ -72,25 +72,21 @@ function Get(target) {
           fields.sort()
           fields.unshift('url')
 
-          // console.log("whodis: writing to", c.value)
-	  //
+          console.log("whodis: writing to", c.value)
           fs.writeFileSync(c.value, json2csv(data, {fields}) + '\n', 'utf8')
         }
 
         if (j.value != "") {
-          // console.log("whodis: writing to", j.value)
-	  //
+          console.log("whodis: writing to", j.value)
           fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
         }
       }
-    })
 
-    .finally(function() {
       process.exit(0)
     })
 
     .catch(error => {
-      process.stderr.write('whodis:', error + '\n')
+      process.stderr.write('whodis: Get', error + '\n')
       process.exit(1)
     })
 }
@@ -120,27 +116,17 @@ function main() {
     console.log("whodis: Added", urls.length, "domain(s)")
   }
 
-  for (u in urls) {
+  for (let u = 0; u < urls.length; u++ ) {
     let url = urls[u]
 
-    if (url.includes(".") === false) {
-      console.log("whodis: Invalid url", + "'" + url + "'")
-    } else if (url.includes('http') === false) {
-      url = 'https://' + url
+    if (url.length > 1) {
+      if (url.includes('http') === false) {
+	url = 'http://' + url
+      }
     }
 
     queue.push(new wappalyzer(url, options).analyze())
-
   }
 
-  if (queue.length > 50) {
-    for each(let q = 0; q >= 4 ; q++) {
-      let bit = queue.splice(0, 50)
-      Get(bit)
-
-
-    }
-  } else {
-    Get(queue)
-  }
+  Get(queue)
 }; main()
