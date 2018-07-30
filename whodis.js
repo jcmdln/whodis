@@ -1,7 +1,5 @@
 // main.js
 
-//process.setMaxListeners(0)
-
 const fs         = require('fs'),
       flag       = require('flags'),
       json2csv   = require('json2csv').parse,
@@ -49,11 +47,9 @@ function Get(target) {
 
 	data.push(r)
       }
-    })
 
-    .finally(function() {
       if (j.value === "" && c.value === "") {
-	process.stdout.write(JSON.stringify(data, null, 2) + '\n')
+	console.log(JSON.stringify(data, null, 2))
       } else {
 	if (c.value != "") {
 	  fields.sort()
@@ -71,9 +67,8 @@ function Get(target) {
 
       process.exit(0)
     })
-
     .catch(error => {
-      process.stderr.write('whodis:', error + '\n')
+      console.log('whodis:', error + '\n')
       process.exit(1)
     })
 }
@@ -84,7 +79,7 @@ function main() {
       urls  = []
 
   if (d.value === true) {
-    process.stdout.write(JSON.stringify(cmd, null, 2) + '\n')
+    console.log(JSON.stringify(cmd, null, 2) + '\n')
   }
 
   if (f.value.length > 0) {
@@ -121,8 +116,8 @@ function main() {
       delay:       100,
       htmlMaxCols: 1000,
       htmlMaxRows: 1000,
-      maxDepth:    2,
-      maxUrls:     2,
+      maxDepth:    3,
+      maxUrls:     3,
       maxWait:     60000,
       recursive:   true,
       userAgent:   'WhoDis ' + cmd['version']
