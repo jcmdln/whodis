@@ -1,6 +1,6 @@
 // main.js
 
-process.setMaxListeners(0)
+//process.setMaxListeners(0)
 
 const fs         = require('fs'),
       flag       = require('flags'),
@@ -15,29 +15,16 @@ let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] UR
     j    = flag.Add("--json",  "-j", "",    "Save data to JSON file"),
     args = flag.Parse()
 
-let urls   = [],
-    queue  = []
-
-let options = {
-  debug:     d.value,
-  delay:     0,
-  maxDepth:  3,
-  maxUrls:   6,
-  maxWait:   60000,
-  recursive: true,
-  userAgent: 'WhoDis ' + cmd['version']
-}
 
 function Get(target) {
   let data   = [],
       fields = []
 
-  console.log("whodis: Starting analysis of provided domain(s)...")
+  console.log("whodis: Crawling domain(s)...")
 
   Promise.all(target)
     .then(results => {
-
-      console.log("whodis: Finding technologies used by domain(s)...")
+      console.log("whodis: Analyzing provided domain(s)...")
 
       for (let i = 0; i < results.length; i++) {
 	let r = {
@@ -66,32 +53,36 @@ function Get(target) {
 
     .finally(function() {
       if (j.value === "" && c.value === "") {
-        process.stdout.write(JSON.stringify(data, null, 2) + '\n')
+	process.stdout.write(JSON.stringify(data, null, 2) + '\n')
       } else {
-        if (c.value != "") {
-          fields.sort()
-          fields.unshift('url')
+	if (c.value != "") {
+	  fields.sort()
+	  fields.unshift('url')
 
-          console.log("whodis: writing to", c.value)
-          fs.writeFileSync(c.value, json2csv(data, {fields}) + '\n', 'utf8')
-        }
+	  console.log("whodis: writing to", c.value)
+	  fs.writeFileSync(c.value, json2csv(data, {fields}) + '\n', 'utf8')
+	}
 
-        if (j.value != "") {
-          console.log("whodis: writing to", j.value)
-          fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
-        }
+	if (j.value != "") {
+	  console.log("whodis: writing to", j.value)
+	  fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
+	}
       }
 
       process.exit(0)
     })
 
     .catch(error => {
-      process.stderr.write('whodis: Get', error + '\n')
+      process.stderr.write('whodis:', error + '\n')
       process.exit(1)
     })
 }
 
+
 function main() {
+  let queue = [],
+      urls  = []
+
   if (d.value === true) {
     process.stdout.write(JSON.stringify(cmd, null, 2) + '\n')
   }
@@ -125,7 +116,17 @@ function main() {
       }
     }
 
-    queue.push(new wappalyzer(url, options).analyze())
+    queue.push(new wappalyzer(url, {
+      debug:       d.value,
+      delay:       100,
+      htmlMaxCols: 1000,
+      htmlMaxRows: 1000,
+      maxDepth:    2,
+      maxUrls:     2,
+      maxWait:     60000,
+      recursive:   true,
+      userAgent:   'WhoDis ' + cmd['version']
+    }).analyze())
   }
 
   Get(queue)
