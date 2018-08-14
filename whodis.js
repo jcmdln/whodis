@@ -1,5 +1,7 @@
 // main.js
 
+process.setMaxListeners(0)
+
 const fs         = require('fs'),
       flag       = require('flags'),
       json2csv   = require('json2csv').parse,
@@ -16,45 +18,60 @@ let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] UR
 let options = {
   debug:       d.value,
   delay:       100,
-  htmlMaxCols: 1000,
-  htmlMaxRows: 1000,
-  maxDepth:    1,
-  maxUrls:     1,
-  maxWait:     10000,
+  htmlMaxCols: 2000,
+  htmlMaxRows: 2000,
+  maxDepth:    2,
+  maxUrls:     2,
+  maxWait:     20000,
   recursive:   true,
   userAgent:   'WhoDis ' + cmd['version']
 }
 
-let header  = []
 
 function wappGet(promises) {
   let result = Promise.resolve()
 
   promises.forEach(function(promise) {
     result = result.then(promise.analyze().then(data => {
+      // let header  = []
+
       let r = {
 	"url": data["urls"][0]
       }
 
       for (a in data["applications"]) {
 	let app = data["applications"][a]
-	let val = ""
+	let value = ""
 
 	if (app["version"] != "") {
-	  val = app["version"]
+	  value = app["version"]
 	} else {
 	  value = "yes"
 	}
 
 	r[app["name"]] = value
 
-	if (!header.includes(app["name"])) {
-	  header.push(app["name"])
-	}
+	// if (!header.includes(app["name"])) {
+	//   header.push(app["name"])
+	// }
       }
 
-      //console.log(r)
-      //console.log(header)
+      if (j.value === "" && c.value === "") {
+      	console.log(JSON.stringify(r, null, 2) + '\n')
+      } else {
+      	if (j.value != "") {
+	  if (fs.existsSync(j.value)) {
+	    fs.readFile(j.value, function (err, data) {
+	      let file = JSON.parse(data)
+	      file.push(r)
+
+	      fs.writeFileSync(j.value, JSON.stringify(file, null, 2) + '\n', 'utf8')
+	    })
+	  } else {
+	    fs.writeFileSync(j.value, JSON.stringify([r], null, 2) + '\n', 'utf8')
+	  }
+      	}
+      }
     }))
   })
 
