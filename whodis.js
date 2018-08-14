@@ -13,72 +13,58 @@ let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] UR
     j    = flag.Add("--json",  "-j", "",    "Save data to JSON file"),
     args = flag.Parse()
 
-
-function Get(target) {
-  let data   = [],
-      fields = []
-
-  console.log("whodis: Crawling domain(s)...")
-
-  Promise.all(target)
-    .then(results => {
-      console.log("whodis: Analyzing provided domain(s)...")
-
-      for (let i = 0; i < results.length; i++) {
-	let r = {
-	  "url": results[i]["urls"][0]
-	}
-
-	for (let a = 0; a < results[i]["applications"].length; a++) {
-	  let value = ""
-
-	  if (results[i]["applications"][a]["version"] != "") {
-	    value = results[i]["applications"][a]["version"]
-	  } else {
-	    value = "yes"
-	  }
-
-	  r[results[i]["applications"][a]["name"]] = value
-
-	  if (fields.includes(results[i]["applications"][a]["name"]) === false) {
-	    fields.push(results[i]["applications"][a]["name"])
-	  }
-	}
-
-	data.push(r)
-      }
-
-      if (j.value === "" && c.value === "") {
-	console.log(JSON.stringify(data, null, 2))
-      } else {
-	if (c.value != "") {
-	  fields.sort()
-	  fields.unshift('url')
-
-	  console.log("whodis: writing to", c.value)
-	  fs.writeFileSync(c.value, json2csv(data, {fields}) + '\n', 'utf8')
-	}
-
-	if (j.value != "") {
-	  console.log("whodis: writing to", j.value)
-	  fs.writeFileSync(j.value, JSON.stringify(data, null, 2) + '\n', 'utf8')
-	}
-      }
-
-      process.exit(0)
-    })
-    .catch(error => {
-      console.log('whodis:', error + '\n')
-      process.exit(1)
-    })
+let options = {
+  debug:       d.value,
+  delay:       100,
+  htmlMaxCols: 1000,
+  htmlMaxRows: 1000,
+  maxDepth:    1,
+  maxUrls:     1,
+  maxWait:     10000,
+  recursive:   true,
+  userAgent:   'WhoDis ' + cmd['version']
 }
 
+let header  = []
+
+function wappGet(promises) {
+  let result = Promise.resolve()
+
+  promises.forEach(function(promise) {
+    result = result.then(promise.analyze().then(data => {
+      let r = {
+	"url": data["urls"][0]
+      }
+
+      for (a in data["applications"]) {
+	let app = data["applications"][a]
+	let val = ""
+
+	if (app["version"] != "") {
+	  val = app["version"]
+	} else {
+	  value = "yes"
+	}
+
+	r[app["name"]] = value
+
+	if (!header.includes(app["name"])) {
+	  header.push(app["name"])
+	}
+      }
+
+      //console.log(r)
+      //console.log(header)
+    }))
+  })
+
+  return result
+}
 
 function main() {
-  let queue = [],
-      urls  = []
+  let urls = []
 
-  if (d.value === true) {
+  if (d.value) {
     console.log(JSON.stringify(cmd, null, 2) + '\n')
   }
 
@@ -95,34 +81,13 @@ function main() {
     }
   }
 
-  if (urls.length < 1) {
-    console.log("whodis: No URLs passed! Exiting...")
-    process.exit(1)
-  } else {
-    console.log("whodis: Added", urls.length, "domain(s)")
-  }
-
-  for (let u = 0; u < urls.length; u++ ) {
-    let url = urls[u]
-
-    if (url.length > 1) {
-      if (url.includes('http') === false) {
-	url = 'http://' + url
+  for (i in urls) {
+    if (urls[i].length > 1) {
+      if (urls[i].includes('http') === false) {
+	urls[i] = new wappalyzer('http://' + urls[i], options)
       }
     }
-
-    queue.push(new wappalyzer(url, {
-      debug:       d.value,
-      delay:       100,
-      htmlMaxCols: 1000,
-      htmlMaxRows: 1000,
-      maxDepth:    3,
-      maxUrls:     3,
-      maxWait:     60000,
-      recursive:   true,
-      userAgent:   'WhoDis ' + cmd['version']
-    }).analyze())
   }
 
-  Get(queue)
+  wappGet(urls)
 }; main()
