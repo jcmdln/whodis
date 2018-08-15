@@ -1,5 +1,6 @@
 // whodis.js
 
+
 // imports
 const fs         = require('fs'),
       flag       = require('flags'),
@@ -9,9 +10,11 @@ const fs         = require('fs'),
 
 // Define our flags
 let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] URLs..."),
-    d    = flag.Add("--debug", "-d", false, "Enable debugging"),
-    f    = flag.Add("--file",  "-f", "",    "Read domains from txt file"),
-    j    = flag.Add("--json",  "-j", "",    "Save data to JSON file"),
+    V    = flag.Add("--verbose", "-V", false, "Enable verbose output"),
+    q    = flag.Add("--quiet",   "-q", false, "Hide all output"),
+    d    = flag.Add("--debug",   "-d", false, "Enable Wappalyzer's debug output"),
+    f    = flag.Add("--file",    "-f", "",    "Read domains from txt file"),
+    j    = flag.Add("--json",    "-j", "",    "Save data to JSON file"),
     args = flag.Parse()
 
 
@@ -22,12 +25,22 @@ let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] UR
 let promise = Promise.resolve()
 
 
-// 'debug()' is simply a helper function to reduce the total lines
-// needed to handle output that might be needed when debugging.
+// 'log()' is a wrapper that checks if '-q' was passed, and outputs a
+// message when false.
 
-function debug(msg) {
-  if (d.value) {
-    console.log("whodis: debug:", msg)
+function log(msg) {
+  if (!q.value) {
+    console.log("whodis:", msg)
+  }
+}
+
+
+// 'verbose()' is a wrapper that checks if '-v' was passed, and outputs
+// additional messages on actions.
+
+function verbose(msg) {
+  if (V.value) {
+    console.log("whodis:", msg)
   }
 }
 
@@ -38,34 +51,40 @@ function debug(msg) {
 // for our promises.
 
 function main() {
-  debug("flag state: " + JSON.stringify(cmd, null, 2) + '\n')
+  verbose("flag state: " + JSON.stringify(cmd, null, 2) + '\n')
 
   let urls = []
 
   let options = {
     debug:       d.value,
-    delay:       0,
-    htmlMaxCols: 2000,
-    htmlMaxRows: 2000,
-    maxDepth:    3,
-    maxUrls:     10,
+    delay:       100,
+    htmlMaxCols: 1500,
+    htmlMaxRows: 1500,
+    maxDepth:    1,
+    maxUrls:     1,
     maxWait:     5000,
-    recursive:   true,
+    recursive:   false,
     userAgent:   'WhoDis v1'
   }
 
   if (f.value.length > 0) {
-    console.log("whodis: Reading domain(s) from", f.value + "...")
+    log("reading domain(s) from", f.value + "...")
+
     urls = fs.readFileSync(f.value).toString().split("\n")
   } else {
     if (args.length > 0) {
-      console.log("whodis: Reading domain(s) from arguments...")
+      log("reading domain(s) from arguments...")
+
       urls = args
     } else {
-      console.log("whodis: No URLs passed! Exiting...")
+      log("no URLs passed! Exiting...")
+
       process.exit(1)
     }
   }
+
+  // Create a listener for each domain
+  process.setMaxListeners(urls.length)
 
   urls.forEach(url => {
     promise = promise.then(() => {
@@ -86,8 +105,8 @@ function main() {
 // finally resolve() the parsed data.
 
 function get(url, promise) {
-  debug("Entered 'get()'")
-  console.log("whodis: scanning '"+ url +"'...")
+  verbose("entered 'get()'")
+  log("scanning '"+ url +"'...")
 
   return new Promise((resolve) => {
     promise.analyze().then(data => {
@@ -103,8 +122,8 @@ function get(url, promise) {
 // important bits.
 
 function parse(data) {
-  debug("Entered 'parse()'")
-  console.log("whodis: checking for known software...")
+  verbose("entered 'parse()'")
+  log("checking for known software...")
 
   let r = {
     "url": Object.keys(data["urls"])[0]
@@ -138,20 +157,20 @@ function parse(data) {
 // provided flags.
 
 function save(data) {
-  debug("Entered 'save()'")
-  console.log("whodis: saving data to file...")
+  verbose("entered 'save()'")
+  log("saving data to file...")
 
   if (j.value != "") {
-    debug("checking for existing '"+j.value+"'...")
+    verbose("checking for existing '"+j.value+"'...")
 
     if (fs.existsSync(j.value)) {
-      debug("'"+j.value+"' exists. Appending to file...")
+      verbose("'"+j.value+"' exists. Appending to file...")
 
       let file = JSON.parse(fs.readFileSync(j.value))
       file.push(data)
       fs.writeFileSync(j.value, JSON.stringify(file, null, 2) + '\n', 'utf8')
     } else {
-      debug("'"+j.value+"' doesn't exist. Creating...")
+      verbose("'"+j.value+"' doesn't exist. Creating...")
 
       fs.writeFileSync(j.value, JSON.stringify([data], null, 2) + '\n', 'utf8')
     }
