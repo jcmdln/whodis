@@ -9,7 +9,8 @@ const fs         = require('fs'),
 
 
 // Define our flags
-let cmd  = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] URLs..."),
+let cmd  = flag.Cmd("whodis", "Discover software used by websites",
+		    "[OPTION] URLs..."),
     V    = flag.Add("--verbose", "-V", false, "Enable verbose output"),
     q    = flag.Add("--quiet",   "-q", false, "Hide all output"),
     d    = flag.Add("--debug",   "-d", false, "Enable Wappalyzer's debug output"),
@@ -51,15 +52,13 @@ function verbose(msg) {
 // for our promises.
 
 function main() {
-  verbose("flag state: " + JSON.stringify(cmd, null, 2) + '\n')
-
   let urls = []
 
   let options = {
     debug:       d.value,
-    delay:       100,
-    htmlMaxCols: 1500,
-    htmlMaxRows: 1500,
+    delay:       0,
+    htmlMaxCols: 1000,
+    htmlMaxRows: 2000,
     maxDepth:    1,
     maxUrls:     1,
     maxWait:     5000,
@@ -113,7 +112,7 @@ function get(url, promise) {
       let p = parse(data)
       resolve(p)
     }).catch(err => { console.log(err) })
-  }).catch(err => { console.log(err) })
+  }, Promise.resolve()).catch(err => { console.log(err) })
 }
 
 
