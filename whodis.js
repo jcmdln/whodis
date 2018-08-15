@@ -123,7 +123,7 @@ function parse(data) {
     r[app["name"]] = value
   }
 
-  if (j.value === "" && c.value === "") {
+  if (j.value === "") {
     console.log(JSON.stringify(r, null, 2) + '\n')
   } else {
     save(r)
@@ -140,14 +140,6 @@ function parse(data) {
 function save(data) {
   debug("Entered 'save()'")
   console.log("whodis: saving data to file...")
-
-  // if (c.value != "") {
-  //   debug()
-  //
-  //   if (fs.existsSync(c.value)) {
-  //   } else {
-  //   }
-  // }
 
   if (j.value != "") {
     debug("checking for existing '"+j.value+"'...")
