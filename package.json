@@ -1,10 +1,10 @@
 {
   "name": "whodis",
   "version": "1.0.0",
-  "description": "Find what software stack a website is using via Wappalyzer",
+  "description": "Find what software sites are using via command line",
   "license": "MIT",
   "author": "jcmdln",
-  "homepage": "https://github.com/jcmdln/whodis#readme",
+  "homepage": "https://whodis.org",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jcmdln/whodis.git"
@@ -13,13 +13,9 @@
     "url": "https://github.com/jcmdln/whodis/issues"
   },
   "main": "whodis.js",
-  "scripts": {
-    "test": "node whodis.js -c 'report.csv' -j 'report.json' github.com gitlab.com bitbucket.com techcrunch.com facebook.com"
-  },
   "dependencies": {
     "flags": "https://github.com/jcmdln/flags.js",
     "json2csv": "^4.1.3",
-    "threads": "^0.11.0",
-    "wappalyzer": "~5.4.18"
+    "wappalyzer": "^5.4.18"
   }
 }
