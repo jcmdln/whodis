@@ -57,10 +57,10 @@ function main() {
   let options = {
     debug:       d.value,
     delay:       0,
-    htmlMaxCols: 1000,
+    htmlMaxCols: 2000,
     htmlMaxRows: 2000,
-    maxDepth:    1,
-    maxUrls:     1,
+    maxDepth:    3,
+    maxUrls:     3,
     maxWait:     5000,
     recursive:   false,
     userAgent:   'WhoDis v1'
@@ -86,8 +86,8 @@ function main() {
   process.setMaxListeners(urls.length)
 
   urls.forEach(url => {
-    promise = promise.then(() => {
-      return get(url, new wappalyzer('http://' + url, options))
+    promise = promise.then(async () => {
+      await get(url, new wappalyzer('http://' + url, options))
     }).catch(err => { console.log(err) })
   })
 
@@ -146,8 +146,6 @@ function parse(data) {
   } else {
     save(r)
   }
-
-  return r
 }
 
 
