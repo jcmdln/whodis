@@ -107,8 +107,8 @@ function get(url, promise) {
   verbose("entered 'get()'")
   log("scanning '"+ url +"'...")
 
-  return new Promise((resolve) => {
-    promise.analyze().then(data => {
+  return new Promise(async (resolve) => {
+    await promise.analyze().then(data => {
       let p = parse(data)
       resolve(p)
     }).catch(err => { console.log(err) })
