@@ -103,16 +103,13 @@ function main() {
 // ensure that it has received data, run our parse() function, and
 // finally resolve() the parsed data.
 
-function get(url, promise) {
+async function get(url, promise) {
   verbose("entered 'get()'")
   log("scanning '"+ url +"'...")
 
-  return new Promise(async (resolve) => {
-    await promise.analyze().then(data => {
-      let p = parse(data)
-      resolve(p)
-    }).catch(err => { console.log(err) })
-  }, Promise.resolve()).catch(err => { console.log(err) })
+  await promise.analyze().then(data => {
+    parse(data)
+  }).catch(err => { console.log(err) })
 }
 
 
