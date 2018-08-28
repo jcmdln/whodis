@@ -10,13 +10,29 @@ const fs         = require('fs'),
 
 // Define our flags
 let cmd  = flag.Cmd("whodis", "Discover software used by websites",
-		    "[OPTION] URLs..."),
+                    "[OPTION] URLs..."),
     V    = flag.Add("--verbose", "-V", false, "Enable verbose output"),
     q    = flag.Add("--quiet",   "-q", false, "Hide all output"),
     d    = flag.Add("--debug",   "-d", false, "Enable Wappalyzer's debug output"),
     f    = flag.Add("--file",    "-f", "",    "Read domains from txt file"),
     j    = flag.Add("--json",    "-j", "",    "Save data to JSON file"),
     args = flag.Parse()
+
+
+// These are the options that we will pass to Wappalyzer which allow us
+// to control some useful things.
+
+let options = {
+  debug:       d.value,
+  delay:       0,
+  htmlMaxCols: 2000,
+  htmlMaxRows: 2000,
+  maxDepth:    3,
+  maxUrls:     3,
+  maxWait:     5000,
+  recursive:   true,
+  userAgent:   'WhoDis'
+}
 
 
 // This is a helper promise we'll use to manage 'state' basically. We'll
@@ -54,40 +70,27 @@ function verbose(msg) {
 function main() {
   let urls = []
 
-  let options = {
-    debug:       d.value,
-    delay:       0,
-    htmlMaxCols: 2000,
-    htmlMaxRows: 2000,
-    maxDepth:    3,
-    maxUrls:     3,
-    maxWait:     5000,
-    recursive:   false,
-    userAgent:   'WhoDis v1'
-  }
-
   if (f.value.length > 0) {
     log("reading domain(s) from", f.value + "...")
-
     urls = fs.readFileSync(f.value).toString().split("\n")
   } else {
     if (args.length > 0) {
       log("reading domain(s) from arguments...")
-
       urls = args
     } else {
       log("no URLs passed! Exiting...")
-
       process.exit(1)
     }
   }
 
-  // Create a listener for each domain
-  process.setMaxListeners(urls.length)
+  process.setMaxListeners(100)
 
   urls.forEach(url => {
     promise = promise.then(async () => {
-      await get(url, new wappalyzer('http://' + url, options))
+      log("scanning '"+ url +"'...")
+      await new wappalyzer('http://' + url, options).analyze().then(async (data) => {
+        await parse(data)
+      }).catch(err => { console.log(err) })
     }).catch(err => { console.log(err) })
   })
 
@@ -96,21 +99,6 @@ function main() {
     process.exit(0)
   }).catch(err => { console.log(err) })
 } main()
-
-
-// get() is a 'promise factory' that is used to handle the 'analyze()'
-// method from the imported wappalyzer class. Before proceeding, we'll
-// ensure that it has received data, run our parse() function, and
-// finally resolve() the parsed data.
-
-async function get(url, promise) {
-  verbose("entered 'get()'")
-  log("scanning '"+ url +"'...")
-
-  await promise.analyze().then(data => {
-    parse(data)
-  }).catch(err => { console.log(err) })
-}
 
 
 // parse() is where we'll keep our logic for how to handle the data we
@@ -165,7 +153,6 @@ function save(data) {
       fs.writeFileSync(j.value, JSON.stringify(file, null, 2) + '\n', 'utf8')
     } else {
       verbose("'"+j.value+"' doesn't exist. Creating...")
-
       fs.writeFileSync(j.value, JSON.stringify([data], null, 2) + '\n', 'utf8')
     }
   }
