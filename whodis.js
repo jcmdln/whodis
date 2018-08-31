@@ -1,5 +1,8 @@
 // whodis.js
 
+//
+process.setMaxListeners(100)
+
 
 // imports
 const fs         = require('fs'),
@@ -70,6 +73,7 @@ function verbose(msg) {
 function main() {
   let urls = []
 
+  // Check if we need to read domains from a file or from arguments.
   if (f.value.length > 0) {
     log("reading domain(s) from", f.value + "...")
     urls = fs.readFileSync(f.value).toString().split("\n")
@@ -83,13 +87,23 @@ function main() {
     }
   }
 
-  process.setMaxListeners(100)
+  // Ensure all urls have an http or https protocol specified, and add
+  // one if needed.
+  for (u in urls) {
+    url = urls[u]
 
+    if (!url.includes("http://") && !url.includes("https://")) {
+      urls[u] = "http://" + url
+    }
+  }
+
+  // Iterate over each url
   urls.forEach(url => {
     promise = promise.then(async () => {
       log("scanning '"+ url +"'...")
-      await new wappalyzer('http://' + url, options).analyze().then(async (data) => {
-        await parse(data)
+
+      await new wappalyzer(url, options).analyze().then(data => {
+        parse(data)
       }).catch(err => { console.log(err) })
     }).catch(err => { console.log(err) })
   })
