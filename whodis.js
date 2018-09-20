@@ -59,17 +59,17 @@ function save(data) {
 	return
     } else {
 	if (Json.value != "") {
-	    verbose("checking for existing '"+j.value+"'...")
+	    verbose("checking for existing '"+ Json.value +"'...")
 
-	    if (fs.existsSync(j.value)) {
-		verbose("'"+j.value+"' exists. Appending to file...")
+	    if (fs.existsSync(Json.value)) {
+		verbose("'"+ Json.value +"' exists. Appending to file...")
 
-		let file = JSON.parse(fs.readFileSync(j.value))
+		let file = JSON.parse(fs.readFileSync(Json.value))
 		file.push(data)
-		fs.writeFileSync(j.value, JSON.stringify(file, null, 2) + '\n', 'utf8')
+		fs.writeFileSync(Json.value, JSON.stringify(file, null, 2) + '\n', 'utf8')
 	    } else {
-		verbose("'"+j.value+"' doesn't exist. Creating...")
-		fs.writeFileSync(j.value, JSON.stringify([data], null, 2) + '\n', 'utf8')
+		verbose("'"+ Json.value +"' doesn't exist. Creating...")
+		fs.writeFileSync(Json.value, JSON.stringify([data], null, 2) + '\n', 'utf8')
 	    }
 	}
     }
