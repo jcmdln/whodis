@@ -1,173 +1,126 @@
 // whodis.js
+'use strict';
+process.setMaxListeners(0);
 
-//
-process.setMaxListeners(100)
+const fs         = require('fs')
+const flag       = require('flags')
+const json2csv   = require('json2csv').parse
+const wappalyzer = require('wappalyzer')
 
-
-// imports
-const fs         = require('fs'),
-      flag       = require('flags'),
-      json2csv   = require('json2csv').parse,
-      wappalyzer = require('wappalyzer')
-
-
-// Define our flags
-let cmd  = flag.Cmd("whodis", "Discover software used by websites",
-                    "[OPTION] URLs..."),
-    V    = flag.Add("--verbose", "-V", false, "Enable verbose output"),
-    q    = flag.Add("--quiet",   "-q", false, "Hide all output"),
-    d    = flag.Add("--debug",   "-d", false, "Enable Wappalyzer's debug output"),
-    f    = flag.Add("--file",    "-f", "",    "Read domains from txt file"),
-    j    = flag.Add("--json",    "-j", "",    "Save data to JSON file"),
-    args = flag.Parse()
-
-
-// These are the options that we will pass to Wappalyzer which allow us
-// to control some useful things.
-
-let options = {
-  debug:       d.value,
-  delay:       0,
-  htmlMaxCols: 2000,
-  htmlMaxRows: 2000,
-  maxDepth:    3,
-  maxUrls:     3,
-  maxWait:     5000,
-  recursive:   true,
-  userAgent:   'WhoDis'
-}
-
-
-// This is a helper promise we'll use to manage 'state' basically. We'll
-// call this later on as a mechanism to control the 'flow' of our
-// promise chain.
-
-let promise = Promise.resolve()
-
-
-// 'log()' is a wrapper that checks if '-q' was passed, and outputs a
-// message when false.
+let cmd     = flag.Cmd("whodis", "Discover software used by websites", "[OPTION] URLs...")
+let Verbose = flag.Add("--verbose", "-V", false, "Enable verbose output")
+let Quiet   = flag.Add("--quiet",   "-q", false, "Hide all output")
+let Debug   = flag.Add("--debug",   "-d", false, "Enable Wappalyzer's debug output")
+let File    = flag.Add("--file",    "-f", "",    "Read domains from txt file")
+let Json    = flag.Add("--json",    "-j", "",    "Save data to JSON file")
+let Args    = flag.Parse()
 
 function log(msg) {
-  if (!q.value) {
-    console.log("whodis:", msg)
-  }
+    if (!Quiet.value) {
+        console.log("whodis:", msg)
+    }
+
+    return
 }
-
-
-// 'verbose()' is a wrapper that checks if '-v' was passed, and outputs
-// additional messages on actions.
 
 function verbose(msg) {
-  if (V.value) {
-    console.log("whodis:", msg)
-  }
+    if (Verbose.value && !Quiet.value) {
+        console.log("whodis:", msg)
+    }
+
+    return
 }
-
-
-// I like having a main() function, although it's sort of pointless for
-// Node. Here we'll process the provided domains, from a file using '-f'
-// or from the arguments received from 'args', and handle the entrypoint
-// for our promises.
-
-function main() {
-  let urls = []
-
-  // Check if we need to read domains from a file or from arguments.
-  if (f.value.length > 0) {
-    log("reading domain(s) from", f.value + "...")
-    urls = fs.readFileSync(f.value).toString().split("\n")
-  } else {
-    if (args.length > 0) {
-      log("reading domain(s) from arguments...")
-      urls = args
-    } else {
-      log("no URLs passed! Exiting...")
-      process.exit(1)
-    }
-  }
-
-  // Ensure all urls have an http or https protocol specified, and add
-  // one if needed.
-  for (u in urls) {
-    url = urls[u]
-
-    if (!url.includes("http://") && !url.includes("https://")) {
-      urls[u] = "http://" + url
-    }
-  }
-
-  // Iterate over each url
-  urls.forEach(url => {
-    promise = promise.then(async () => {
-      log("scanning '"+ url +"'...")
-
-      await new wappalyzer(url, options).analyze().then(data => {
-        parse(data)
-      }).catch(err => { console.log(err) })
-    }).catch(err => { console.log(err) })
-  })
-
-  // Once all promises have completed, this block runs.
-  promise.then(() => {
-    process.exit(0)
-  }).catch(err => { console.log(err) })
-} main()
-
-
-// parse() is where we'll keep our logic for how to handle the data we
-// receive. Much of the data we receive goes unused, but we keep the
-// important bits.
 
 function parse(data) {
-  verbose("entered 'parse()'")
-  log("checking for known software...")
+    verbose("entered 'parse()'")
 
-  let r = {
-    "url": Object.keys(data["urls"])[0]
-  }
+    let parsed = { "url": Object.keys(data["urls"])[0] }
 
-  for (a in data["applications"]) {
-    let app = data["applications"][a]
-    let value = ""
+    for (let a = 0; a < data["applications"].length; a++) {
+        let app = data["applications"][a]
+        let val = ""
 
-    if (app["version"] != null) {
-      value = app["version"]
-    } else {
-      value = "yes"
+        if (app["version"] != null) {
+            val = app["version"]
+        } else {
+            val = "yes"
+        }
+
+        parsed[app["name"]] = val
     }
 
-    r[app["name"]] = value
-  }
-
-  if (j.value === "") {
-    console.log(JSON.stringify(r, null, 2) + '\n')
-  } else {
-    save(r)
-  }
+    return parsed
 }
-
-
-// 'save()' is where the logic for saving to and reading from files is
-// kept. Here we will handle saving to a json or csv file based on the
-// provided flags.
 
 function save(data) {
-  verbose("entered 'save()'")
-  log("saving data to file...")
+    verbose("entered 'save()'")
 
-  if (j.value != "") {
-    verbose("checking for existing '"+j.value+"'...")
-
-    if (fs.existsSync(j.value)) {
-      verbose("'"+j.value+"' exists. Appending to file...")
-
-      let file = JSON.parse(fs.readFileSync(j.value))
-      file.push(data)
-      fs.writeFileSync(j.value, JSON.stringify(file, null, 2) + '\n', 'utf8')
+    if (Csv.value.length < 1 && Json.value.length < 1) {
+	return
     } else {
-      verbose("'"+j.value+"' doesn't exist. Creating...")
-      fs.writeFileSync(j.value, JSON.stringify([data], null, 2) + '\n', 'utf8')
+	if (Json.value != "") {
+	    verbose("checking for existing '"+j.value+"'...")
+
+	    if (fs.existsSync(j.value)) {
+		verbose("'"+j.value+"' exists. Appending to file...")
+
+		let file = JSON.parse(fs.readFileSync(j.value))
+		file.push(data)
+		fs.writeFileSync(j.value, JSON.stringify(file, null, 2) + '\n', 'utf8')
+	    } else {
+		verbose("'"+j.value+"' doesn't exist. Creating...")
+		fs.writeFileSync(j.value, JSON.stringify([data], null, 2) + '\n', 'utf8')
+	    }
+	}
     }
-  }
+
+    return "Saved"
 }
+
+async function main() {
+    let urls = []
+    let opts = {
+	chunkSize:   1,
+	debug:       Debug.value,
+	delay:       0,
+	htmlMaxCols: 2000,
+	htmlMaxRows: 2000,
+	maxDepth:    1,
+	maxUrls:     1,
+	maxWait:     5000,
+	recursive:   false,
+	userAgent:   'WhoDis'
+    }
+
+    if (File.value != "") {
+        log("reading domain(s) from '"+File.value+"'...")
+        urls = fs.readFileSync(File.value).toString().split("\n")
+    } else {
+        if (Args.length > 0) {
+            log("reading domain(s) from arguments...")
+            urls = Args
+        } else {
+            log("no URLs passed! Exiting...")
+            process.exit(1)
+        }
+    }
+
+    for (let u = 0; u < urls.length; u++) {
+        let url = urls[u]
+
+	if (url.length > 1) {
+	    if (!url.includes("http://") && !url.includes("https://")) {
+		url = "http://" + url
+            }
+
+	    const w = new wappalyzer(url, opts)
+	    await w.analyze().then(data => {
+		log("crawling '"+ Object.keys(data["urls"])[0] +"'...")
+		let d = parse(data)
+		console.log(JSON.stringify(d, null, 2))
+	    })
+	}
+    }
+
+    process.exit(0)
+}; main()
