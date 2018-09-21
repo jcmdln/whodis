@@ -55,8 +55,8 @@ function parse(data) {
 function save(data) {
     verbose("entered 'save()'")
 
-    if (Csv.value.length < 1 && Json.value.length < 1) {
-	return
+    if (Json.value === "") {
+	console.log(JSON.stringify(data, null, 2))
     } else {
 	if (Json.value != "") {
 	    verbose("checking for existing '"+ Json.value +"'...")
@@ -74,7 +74,7 @@ function save(data) {
 	}
     }
 
-    return "Saved"
+    return
 }
 
 async function main() {
@@ -113,12 +113,11 @@ async function main() {
 		url = "http://" + url
             }
 
-	    const w = new wappalyzer(url, opts)
-	    await w.analyze().then(data => {
+	    await new wappalyzer(url, opts).analyze().then(data => {
 		log("crawling '"+ Object.keys(data["urls"])[0] +"'...")
 		let d = parse(data)
-		console.log(JSON.stringify(d, null, 2))
-	    })
+		save(d)
+	    }).catch(err => { console.log(err) })
 	}
     }
 
