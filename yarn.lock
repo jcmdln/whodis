@@ -84,8 +84,8 @@ combined-stream@~1.0.6:
     delayed-stream "~1.0.0"
 
 commander@^2.15.1:
-  version "2.18.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.18.0.tgz#2bf063ddee7c7891176981a2cc798e5754bc6970"
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
 
 core-js@^1.0.0:
   version "1.2.7"
@@ -248,7 +248,7 @@ jsbn@~0.1.0:
 
 jsdom@^7.2.2:
   version "7.2.2"
-  resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-7.2.2.tgz#40b402770c2bda23469096bee91ab675e3b1fc6e"
+  resolved "http://registry.npmjs.org/jsdom/-/jsdom-7.2.2.tgz#40b402770c2bda23469096bee91ab675e3b1fc6e"
   dependencies:
     abab "^1.0.0"
     acorn "^2.4.0"
@@ -404,8 +404,8 @@ qs@~6.5.2:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
 
 querystringify@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.0.0.tgz#fa3ed6e68eb15159457c89b37bc6472833195755"
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.0.tgz#7ded8dfbf7879dcc60d0a644ac6754b283ad17ef"
 
 request@^2.55.0, request@^2.65.0:
   version "2.88.0"
@@ -453,18 +453,17 @@ source-map@~0.6.1:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
 
 sshpk@^1.7.0:
-  version "1.14.2"
-  resolved "https://registry.yarnpkg.com/sshpk/-/sshpk-1.14.2.tgz#c6fc61648a3d9c4e764fd3fcdf4ea105e492ba98"
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/sshpk/-/sshpk-1.15.1.tgz#b79a089a732e346c6e0714830f36285cd38191a2"
   dependencies:
     asn1 "~0.2.3"
     assert-plus "^1.0.0"
-    dashdash "^1.12.0"
-    getpass "^0.1.1"
-    safer-buffer "^2.0.2"
-  optionalDependencies:
     bcrypt-pbkdf "^1.0.0"
+    dashdash "^1.12.0"
     ecc-jsbn "~0.1.1"
+    getpass "^0.1.1"
     jsbn "~0.1.0"
+    safer-buffer "^2.0.2"
     tweetnacl "~0.14.0"
 
 "symbol-tree@>= 3.1.0 < 4.0.0":

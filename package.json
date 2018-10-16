@@ -5,6 +5,7 @@
    "license": "MIT",
    "author": "jcmdln",
    "homepage": "https://whodis.org",
+   "main": "whodis.js",
    "repository": {
       "type": "git",
       "url": "git+https://github.com/jcmdln/whodis.git"
@@ -12,7 +13,6 @@
    "bugs": {
       "url": "https://github.com/jcmdln/whodis/issues"
    },
-   "main": "whodis.js",
    "dependencies": {
       "flags": "https://github.com/jcmdln/flags.js",
       "json2csv": "^4.1.3",
