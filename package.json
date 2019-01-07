@@ -4,7 +4,7 @@
     "description": "Find what software sites are using via command line",
     "main": "whodis.js",
     "scripts": {
-	"test": "node whodis.js --verbose --debug github gitlab.com"
+        "test": "node whodis.js --verbose --debug github gitlab.com"
     },
     "dependencies": {
         "flags": "git+https://github.com/jcmdln/flags.js.git",
