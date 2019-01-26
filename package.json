@@ -1,14 +1,23 @@
 {
-    "name": "whodis",
-    "version": "1.0.0",
-    "description": "Find what software sites are using via command line",
-    "main": "whodis.js",
-    "scripts": {
-        "test": "node whodis.js --verbose --debug github gitlab.com"
-    },
-    "dependencies": {
-        "flags": "git+https://github.com/jcmdln/flags.js.git",
-        "json2csv": "^4.3.2",
-        "wappalyzer": "^5.6.3"
-    }
+  "name": "whodis",
+  "version": "0.1.0",
+  "description": "Discover software used by websites via command line",
+  "main": "whodis.js",
+  "scripts": {
+    "build": "npm run build:linux && npm run build:windows",
+    "build:linux": "./node_modules/.bin/pkg ./src/whodis.js -t node10-linux",
+    "build:windows": "./node_modules/.bin/pkg ./src/whodis.js -t node10-win",
+    "test": "node ./src/whodis.js -v -d github.com gitlab.com"
+  },
+  "dependencies": {
+    "json2csv": "^4.3.2",
+    "pkginfo": "^0.4.1",
+    "threads": "^0.12.0",
+    "wappalyzer": "^5.6.3"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.1",
+    "pkg": "^4.3.7",
+    "rollup": "^1.1.2"
+  }
 }

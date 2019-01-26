@@ -1,3 +1,12 @@
+# nexe
+whodis
+whodis.exe
+tsconfig.json
+
+# lock files
+yarn.lock
+package-lock.json
+
 # Logs
 logs
 *.log
