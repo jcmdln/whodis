@@ -19,14 +19,13 @@ class Log {
 
     Error(Message) {
 	console.log("[ERROR]", this.prefix + ":", Message)
-	console.trace()
 	process.exit(1)
     }
 
     Fatal(Message) {
 	console.log("[FATAL]", this.prefix + ":", Message)
+	console.trace()
 	process.exit(1)
-	// Try to dump a core?
     }
 }
 

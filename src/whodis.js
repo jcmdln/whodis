@@ -41,9 +41,7 @@ function Parse(data) {
 function Save(data) {
     if (Json.value != "") {
 	if (fs.existsSync(Json.value)) {
-	    let file = JSON.parse(
-		fs.readFileSync(Json.value)
-	    )
+	    let file = JSON.parse(fs.readFileSync(Json.value))
 
 	    file.push(data)
 	    fs.writeFileSync(Json.value, data + '\n', 'utf8')
@@ -58,6 +56,10 @@ function Save(data) {
 async function Get(Urls) {
     for (let u in Urls) {
 	let url = Urls[u]
+
+	if (!url.includes(".")) {
+	    log.Fatal("'"+ url + "'" + " is not a domain!")
+	}
 
 	if (!url.includes("http://") && !url.includes("https://")) {
 	    url = "https://" + url
@@ -87,13 +89,14 @@ async function Get(Urls) {
 
 let urls = []
 
-if (File.value != "") {
+if (File.value !== "" && File.value !== "") {
+    log.Msg("reading domains from '" + File.value  + "'...")
     urls = fs.readFileSync(File.value).toString().split("\n")
 } else {
     if (Args.length > 0) {
 	urls = Args
     } else {
-	process.exit(1)
+	log.Error("no arguments were passed!")
     }
 }
 
