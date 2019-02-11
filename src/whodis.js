@@ -2,102 +2,36 @@
 'use strict';
 process.setMaxListeners(0);
 
-
 const Command = require('./lib/command.js')
 const Log = require('./lib/log.js')
-const Wappalyzer = require('wappalyzer')
-const Browser = require('../node_modules/wappalyzer/browsers/zombie.js')
+const Wapp = require('./lib/wappalyzer.js')
 //const json2csv = require('json2csv').parse
 
 const cmd = new Command("whodis", "[OPTION] URLs...", "Discover software used by websites")
-const log = new Log(cmd.name)
-
 let Verbose = cmd.Flag("verbose", "V", false, "Show additional messages for tracking execution.")
 let Quiet = cmd.Flag("quiet", "q", false, "Suppress output, ignoring whether --verbose was issued.")
 let Debug = cmd.Flag("debug", "d", false, "Enable debug output, ignoring whether --quiet was issued.")
 let File = cmd.Flag("file", "f", "", "Read domains from the specified text file.")
-let Json = cmd.Flag("json", "j", "", "Save data to tje specified JSON file")
+let saveJson = cmd.Flag("json", "j", "", "Save data to tje specified JSON file")
 let Args = cmd.Parse()
 
+const log = new Log(cmd.name)
+const wapp = new Wapp(cmd.name, Debug.value, saveJson.value)
 
-function Parse(data) {
-    let parsed = {
-	"url": Object.keys(data.urls)[0]
-    }
 
-    for (let a in data.applications) {
-	let app = data.applications[a]
+async function main() {
+	let urls = []
 
-	if (app.version !== null && app.version !== "") {
-	    parsed[app.name] = app.version
+	if (File.value !== "" && File.value !== "") {
+		log.Msg("reading domains from '" + File.value  + "'...")
+		urls = fs.readFileSync(File.value).toString().split("\n")
 	} else {
-	    parsed[app.name] = true
-	}
-    }
-
-    return JSON.stringify(parsed, null, 2)
-}
-
-function Save(data) {
-    if (Json.value != "") {
-	if (fs.existsSync(Json.value)) {
-	    let file = JSON.parse(fs.readFileSync(Json.value))
-
-	    file.push(data)
-	    fs.writeFileSync(Json.value, data + '\n', 'utf8')
-	} else {
-	    fs.writeFileSync(Json.value, data + '\n', 'utf8')
-	}
-    } else {
-	console.log(data)
-    }
-}
-
-async function Get(Urls) {
-    for (let u in Urls) {
-	let url = Urls[u]
-
-	if (!url.includes(".")) {
-	    log.Fatal("'"+ url + "'" + " is not a domain!")
+		if (Args.length > 0) {
+			urls = Args
+		} else {
+			log.Error("no arguments were passed!")
+		}
 	}
 
-	if (!url.includes("http://") && !url.includes("https://")) {
-	    url = "https://" + url
-	}
-
-	await new Wappalyzer(Browser, url, {
-	    debug: Debug.value,
-	    delay: 500,
-	    htmlMaxCols: 2000,
-	    htmlMaxRows: 2000,
-	    maxDepth: 3,
-	    maxUrls: 10,
-	    maxWait: 5000,
-	    recursive: true,
-	    userAgent: 'whodis',
-	}).analyze().then(data => {
-	    let d = Parse(data)
-	    Save(d)
-	}).catch(err => {
-	    console.log(err)
-	})
-    }
-
-    process.exit(0)
-}
-
-
-let urls = []
-
-if (File.value !== "" && File.value !== "") {
-    log.Msg("reading domains from '" + File.value  + "'...")
-    urls = fs.readFileSync(File.value).toString().split("\n")
-} else {
-    if (Args.length > 0) {
-	urls = Args
-    } else {
-	log.Error("no arguments were passed!")
-    }
-}
-
-Get(urls)
+	wapp.Scan(urls)
+}; main()
