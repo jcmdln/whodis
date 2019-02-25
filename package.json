@@ -1,13 +1,14 @@
 {
   "name": "whodis",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Discover software used by websites via command line",
   "main": "whodis.js",
   "scripts": {
     "build": "npm run build:linux && npm run build:windows",
     "build:linux": "./node_modules/.bin/pkg ./src/whodis.js --options no-deprecation,no-warnings -t node10-linux",
     "build:windows": "./node_modules/.bin/pkg ./src/whodis.js --options no-deprecation,no-warnings -t node10-win",
-    "test": "node ./src/whodis.js github.com gitlab.com bitbucket.org"
+    "test": "node ./src/whodis.js github.com gitlab.com bitbucket.org",
+		"test:build": ""
   },
   "dependencies": {
     "json2csv": "^4.3.5",

@@ -1,17 +1,19 @@
 // whodis.js
 'use strict';
 
-const child = require('child_process')
+const child   = require('child_process')
+const path    = require('path')
 const Command = require('./lib/command.js')
-const Log = require('./lib/log.js')
+const Log     = require('./lib/log.js')
+const Wapp    = require('./lib/wappalyzer.js')
 
-const cmd = new Command("whodis", "[OPTION] URLs...", "Discover software used by websites")
-let Verbose = cmd.Flag("verbose", "V", false, "Show additional messages for tracking execution.")
-let Quiet = cmd.Flag("quiet", "q", false, "Suppress output, ignoring whether --verbose was issued.")
-let Debug = cmd.Flag("debug", "d", false, "Enable debug output, ignoring whether --quiet was issued.")
-let File = cmd.Flag("file", "f", "", "Read domains from the specified text file.")
+const cmd    = new Command("whodis", "[OPTION] URLs...", "Discover software used by websites")
+let Verbose  = cmd.Flag("verbose", "V", false, "Show additional messages for tracking execution.")
+let Quiet    = cmd.Flag("quiet", "q", false, "Suppress output, ignoring whether --verbose was issued.")
+let Debug    = cmd.Flag("debug", "d", false, "Enable debug output, ignoring whether --quiet was issued.")
+let File     = cmd.Flag("file", "f", "", "Read domains from the specified text file.")
 let saveJson = cmd.Flag("json", "j", "", "Save data to tje specified JSON file")
-let Args = cmd.Parse()
+let Args     = cmd.Parse()
 
 
 const log = new Log(cmd.name)
@@ -30,8 +32,9 @@ if (File.value !== "" && File.value !== "") {
 	}
 }
 
+let p = path.join(__dirname, './exec.js')
 for (let u in urls) {
 	let url = urls[u]
-	let result = child.execSync("node ./src/exec.js " + url)
+	let result = child.execSync("node " + p + " " + url)
 	console.log(result.toString())
 }
