@@ -5,19 +5,18 @@
   "main": "whodis.js",
   "scripts": {
     "build": "npm run build:linux && npm run build:windows",
-    "build:linux": "./node_modules/.bin/pkg ./src/whodis.js -t node10-linux",
-    "build:windows": "./node_modules/.bin/pkg ./src/whodis.js -t node10-win",
-    "test": "node ./src/whodis.js -v -d github.com gitlab.com"
+    "build:linux": "./node_modules/.bin/pkg ./src/whodis.js --options no-deprecation,no-warnings -t node10-linux",
+    "build:windows": "./node_modules/.bin/pkg ./src/whodis.js --options no-deprecation,no-warnings -t node10-win",
+    "test": "node ./src/whodis.js github.com gitlab.com bitbucket.org"
   },
   "dependencies": {
-    "json2csv": "^4.3.2",
+    "json2csv": "^4.3.5",
     "pkginfo": "^0.4.1",
-    "threads": "^0.12.0",
     "wappalyzer": "^5.6.3"
   },
   "devDependencies": {
-    "eslint": "^5.12.1",
+    "eslint": "^5.14.1",
     "pkg": "^4.3.7",
-    "rollup": "^1.1.2"
+    "rollup": "^1.2.3"
   }
 }

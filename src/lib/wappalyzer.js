@@ -8,21 +8,9 @@ const log = new Log("wappalyzer")
 
 
 class Wapp {
-	constructor(Name, Debug, JsonFile) {
-		this.name    = Name
-		this.debug   = Debug
-		this.Json    = JsonFile
-		this.options = {
-			debug: Debug,
-			delay: 500,
-			htmlMaxCols: 2000,
-			htmlMaxRows: 2000,
-			maxDepth: 3,
-			maxUrls: 10,
-			maxWait: 5000,
-			recursive: true,
-			userAgent: Name,
-		}
+	constructor(Options) {
+		this.options = Options
+		this.result  = {}
 	}
 
 	Parse(Data) {
@@ -40,46 +28,28 @@ class Wapp {
 			}
 		}
 
-		return JSON.stringify(parsed, null, 2)
+		return this.result = parsed
 	}
 
-	Save(Data) {
-		if (this.Json != "") {
-			if (fs.existsSync(this.Json)) {
-				let file = JSON.parse(fs.readFileSync(this.Json))
+	Scan(url) {
+		// TODO: figure out why this isn't working
+		// if (!url.includes(".")) {
+		// 	log.Fatal("'"+ url + "'" + " is not a domain!")
+		// }
 
-				file.push(Data)
-				fs.writeFileSync(this.Json, Data + '\n', 'utf8')
-			} else {
-				fs.writeFileSync(this.Json, Data + '\n', 'utf8')
-			}
-		} else {
-			return Data
+		if (!url.includes("http://") && !url.includes("https://")) {
+			url = "https://" + url
 		}
-	}
 
-	async Scan(Urls) {
-    for (let u in Urls) {
-			let url = Urls[u]
-
-			if (!url.includes(".")) {
-				log.Fatal("'"+ url + "'" + " is not a domain!")
-			}
-
-			if (!url.includes("http://") && !url.includes("https://")) {
-				url = "https://" + url
-			}
-
-			await new Wappalyzer(Browser, url, this.options).analyze().then(data => {
-				let d = this.Parse(data)
-				let s = this.Save(d)
-				console.log(s)
-			}).catch(err => {
-				console.log(err)
-			})
-    }
-
+		new Wappalyzer(Browser, url, this.options).analyze().then(data => {
+			return this.Parse(data)
+		}).then(res => {
+			console.log(JSON.stringify(res, null, 4))
 			process.exit(0)
+		}).catch(err => {
+			log.Fatal(err)
+			process.exit(1)
+		})
 	}
 }
 
