@@ -15,12 +15,12 @@ const Log     = require('./log.js')
 
 const cmd = new Command(
 	"whodis", "[OPTION] URLs...",
-	"Discover software used by websites"
+	"Discover software used by websites."
 )
 
 let Verbose = cmd.Flag(
 	"verbose", "V", false,
-	"Show additional messages for tracking execution."
+	"Show all output."
 )
 
 let Quiet = cmd.Flag(
@@ -35,12 +35,17 @@ let Debug = cmd.Flag(
 
 let File = cmd.Flag(
 	"file", "f", "",
-	"Read domains from the specified text file."
+	"Read domains from the specified input file."
+)
+
+let saveCsv = cmd.Flag(
+	"csv", "c", "",
+	"Save data as JSON to the specified file."
 )
 
 let saveJson = cmd.Flag(
 	"json", "j", "",
-	"Save data to tje specified JSON file"
+	"Save data as JSON to the specified file."
 )
 
 // Parse arguments and their options.
