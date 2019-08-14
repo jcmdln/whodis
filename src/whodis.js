@@ -38,10 +38,10 @@ let File = cmd.Flag(
 	"Read domains from the specified input file."
 )
 
-let saveCsv = cmd.Flag(
-	"csv", "c", "",
-	"Save data as JSON to the specified file."
-)
+// let saveCsv = cmd.Flag(
+// 	"csv", "c", "",
+// 	"Save data as JSON to the specified file."
+// )
 
 let saveJson = cmd.Flag(
 	"json", "j", "",
