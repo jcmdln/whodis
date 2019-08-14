@@ -1,9 +1,8 @@
 // exec.js
-'use-scrict';
 
-const Wapp = require('./lib/wappalyzer.js')
+const Whodis = require('./wappalyzer.js')
 
-const wapp = new Wapp({
+const options = {
 	debug: false,
 	delay: 500,
 	htmlMaxCols: 2000,
@@ -13,7 +12,10 @@ const wapp = new Wapp({
 	maxWait: 5000,
 	recursive: true,
 	userAgent: "WhoDis",
-})
+}
+
+const whodis = new Whodis(options)
 
 let url = process.argv.slice(2)
-wapp.Scan(url)
+
+whodis.Scan(url)

@@ -1,13 +1,14 @@
 // wappalyzer.js
+'use-scrict';
 
 const Log = require('./log.js')
-const Wappalyzer = require('wappalyzer')
-const Browser = require('../../node_modules/wappalyzer/browsers/zombie.js')
+const Wappalyzer = require('wappalyzer');
+
 
 const log = new Log("wappalyzer")
 
 
-class Wapp {
+class Whodis {
 	constructor(Options) {
 		this.options = Options
 		this.result  = {}
@@ -32,16 +33,15 @@ class Wapp {
 	}
 
 	Scan(url) {
-		// TODO: figure out why this isn't working
 		// if (!url.includes(".")) {
-		// 	log.Fatal("'"+ url + "'" + " is not a domain!")
+		// 	log.Error("'"+ url + "'" + " is not a domain!")
 		// }
 
 		if (!url.includes("http://") && !url.includes("https://")) {
 			url = "https://" + url
 		}
 
-		new Wappalyzer(Browser, url, this.options).analyze().then(data => {
+		new Wappalyzer(url, this.options).analyze().then(data => {
 			return this.Parse(data)
 		}).then(res => {
 			console.log(JSON.stringify(res, null, 4))
@@ -53,4 +53,5 @@ class Wapp {
 	}
 }
 
-module.exports = Wapp
+
+module.exports = Whodis
