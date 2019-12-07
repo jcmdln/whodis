@@ -1,11 +1,11 @@
 // whodis.js
 'use strict';
 
-const child   = require('child_process')
-const path    = require('path')
+const child = require('child_process')
+const path = require('path')
 
-const Command = require('./command.js')
-const Log     = require('./log.js')
+const Command = require('../lib/command.js')
+const Log = require('../lib/log.js')
 
 
 // command.js
@@ -73,7 +73,7 @@ if (File.value.length > 0) {
 } else {
 	// Ensure arguments were provided
 	if (Args.length == 0) {
-				log.Error("no arguments were provided")
+		log.Error("no arguments were provided")
 	}
 
 	// Ensure arguments "smell" like domains
@@ -94,7 +94,7 @@ if (File.value.length > 0) {
 
 // This is required so pkg knows how to access the file we want to
 // execute as a child process.
-const Wappaluzer = require('./wappalyzer.js')
+const Wappalyzer = require('../lib/wappalyzer.js')
 const ex = path.join(__dirname, './exec.js')
 
 for (let i = 0; i < urls.length; i++) {

@@ -1,8 +1,8 @@
 // exec.js
 
-const Whodis = require('./wappalyzer.js')
+const Whodis = require('../lib/wappalyzer.js')
 
-const options = {
+const whodis = new Whodis({
 	debug: false,
 	delay: 500,
 	htmlMaxCols: 2000,
@@ -12,10 +12,8 @@ const options = {
 	maxWait: 5000,
 	recursive: true,
 	userAgent: "WhoDis",
-}
+})
 
-const whodis = new Whodis(options)
-
-let url = process.argv.slice(2)
+let url = process.argv.slice(2)[0]
 
 whodis.Scan(url)
