@@ -3,6 +3,7 @@
 
 const child = require('child_process')
 const path = require('path')
+const fs = require("fs")
 
 const Command = require('../lib/command.js')
 const Log = require('../lib/log.js')
