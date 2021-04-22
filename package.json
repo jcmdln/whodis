@@ -10,12 +10,12 @@
     "test": "node ./src/whodis.js github.com gitlab.com bitbucket.org"
   },
   "dependencies": {
-    "json2csv": "^4.5.2",
-    "pkginfo": "^0.4.1",
-    "wappalyzer": "5.8.3"
+    "json2csv": "5.0.6",
+    "pkginfo": "0.4.1",
+    "wappalyzer": "6.5.34"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "pkg": "^4.4.0"
+    "eslint": "7.24.0",
+    "pkg": "5.0.0"
   }
 }

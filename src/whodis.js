@@ -1,105 +1,109 @@
 // whodis.js
 'use strict';
 
-const child = require('child_process')
-const path = require('path')
-const fs = require("fs")
-
 const Command = require('../lib/command.js')
 const Log = require('../lib/log.js')
+const Wappalyzer = require('wappalyzer');
+const fs = require("fs")
+const path = require('path')
 
-
-// command.js
-//
-// Define our top-level command including the arguments and their
-// options, then parse them.
 
 const cmd = new Command(
-	"whodis", "[OPTION] URLs...",
-	"Discover software used by websites."
-)
+    "whodis", "[OPTION] URLs...", "Discover software used by websites.")
+const log = new Log(cmd.name)
+const wappalyzer = new Wappalyzer()
+
 
 let Verbose = cmd.Flag(
-	"verbose", "V", false,
-	"Show all output."
+    "verbose", "V", false,
+    "Show all output."
 )
-
 let Quiet = cmd.Flag(
-	"quiet", "q", false,
-	"Suppress output, ignoring whether --verbose was issued."
+    "quiet", "q", false,
+    "Suppress output, ignoring whether --verbose was issued."
 )
-
 let Debug = cmd.Flag(
-	"debug", "d", false,
-	"Enable debug output, ignoring whether --quiet was issued."
+    "debug", "d", false,
+    "Enable debug output, ignoring whether --quiet was issued."
 )
-
 let File = cmd.Flag(
-	"file", "f", "",
-	"Read domains from the specified input file."
+    "file", "f", "",
+    "Read domains from the specified input file."
 )
-
-// let saveCsv = cmd.Flag(
-// 	"csv", "c", "",
-// 	"Save data as JSON to the specified file."
-// )
-
-let saveJson = cmd.Flag(
-	"json", "j", "",
-	"Save data as JSON to the specified file."
-)
-
-// Parse arguments and their options.
 const Args = cmd.Parse()
 
 
-// log.js
-//
-// Instantiate a new Log
+async function whodis(urls) {
+    let data = {}
 
-const log = new Log(cmd.name)
+    try {
+	await wappalyzer.init()
+
+	const results = await Promise.all(
+	    urls.map(async (url) => ({
+		url,
+		results: await wappalyzer.open(url).analyze()
+	    }))
+	)
+
+	data = results
+    } catch (error) {
+	console.error(error)
+    }
+
+    await wappalyzer.destroy()
+
+    return data
+}
 
 
-// wappalyzer.js
-//
-// This is where we prepare our actual work to be done, and pass it
-// through the main.js for execution.
+async function main() {
+    let data = {}
+    let result = {}
+    let urls = []
 
-let urls = []
-
-if (File.value.length > 0) {
+    if (File.value.length > 0) {
 	log.Msg("reading domains from '" + File.value + "'...")
 
 	urls = fs.readFileSync(File.value).toString().split("\n")
-} else {
-	// Ensure arguments were provided
+    } else {
 	if (Args.length == 0) {
-		log.Error("no arguments were provided")
+	    log.Error("no arguments were provided")
 	}
 
-	// Ensure arguments "smell" like domains
 	for (let i = 0; i < Args.length; i++) {
-		let arg = Args[i]
+	    let arg = Args[i]
 
-		if (arg.includes(".")) {
-			urls.push(arg)
-		}
+	    if (arg.includes(".")) {
+		urls.push(arg)
+	    }
 	}
 
-	// Ensure we got at least one valid domain
 	if (urls.length == 0) {
-		log.Error("no valid urls were provided")
+	    log.Error("no valid urls were provided")
 	}
-}
+    }
 
+    data = await whodis(urls)
 
-// This is required so pkg knows how to access the file we want to
-// execute as a child process.
-const Wappalyzer = require('../lib/wappalyzer.js')
-const ex = path.join(__dirname, './exec.js')
+    for (let d in data) {
+	let n = data[d]
+	let tech = n.results.technologies
+	let url = n.url
 
-for (let i = 0; i < urls.length; i++) {
-	const url = urls[i]
-	let result = child.execSync("node " + ex + " " + url)
-	console.log(result.toString())
-}
+	result[url] = {}
+
+	for (let t in tech) {
+	    let item = tech[t]
+	    let name = item.name
+
+	    if (item.version != null) {
+		result[url][item.name] = item.version
+	    } else {
+		result[url][item.name] = true
+	    }
+	}
+    }
+
+    console.log(JSON.stringify(result, null, 2))
+}; main()
